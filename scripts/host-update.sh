@@ -11,7 +11,7 @@ source "$SCRIPT_DIR/lib/render.sh"
 source "$SCRIPT_DIR/lib/runtime.sh"
 
 t1c_update_main() {
-  local snapshot_dir package_dir render_dir desired_version current_version current_arch server_ip repo_connect_address resolved_connect_address connect_address_source
+  local snapshot_dir package_dir render_dir desired_version current_version current_arch server_ip repo_connect_address resolved_connect_address connect_address_source candidate replacement_target=""
 
   t1c_require_root
 
@@ -41,9 +41,25 @@ t1c_update_main() {
     XRAY_VERSION="$desired_version"
   fi
 
+  if bash "$SCRIPT_DIR/check.sh" "$REALITY_TARGET" >/dev/null 2>&1; then
+    :
+  else
+    while IFS= read -r candidate || [[ -n "$candidate" ]]; do
+      [[ -z "$candidate" ]] && continue
+      if bash "$SCRIPT_DIR/check.sh" "$candidate" >/dev/null 2>&1; then
+        replacement_target="$candidate"
+        REALITY_TARGET="$candidate"
+        REALITY_SERVER_NAME="$(t1c_target_host "$candidate")"
+        break
+      fi
+    done < <(t1c_read_target_candidates "$snapshot_dir/reality-targets")
+    [[ -n "$replacement_target" ]] || t1c_die 'no valid REALITY target candidates'
+  fi
+
   SERVER_IP="$server_ip"
   repo_connect_address="$(t1c_read_connect_address "$snapshot_dir/connect-address")"
   if [[ -n "$repo_connect_address" ]]; then
+    t1c_validate_connect_address "$repo_connect_address" "$server_ip" || t1c_die 'connect-address does not resolve to this server'
     resolved_connect_address="$repo_connect_address"
     connect_address_source="config"
   else

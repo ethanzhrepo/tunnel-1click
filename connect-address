@@ -1,0 +1,2 @@
+# Optional. Set a DNS name or IPv4 address for client output.
+# Leave commented out to use the detected public IP.

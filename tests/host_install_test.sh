@@ -35,6 +35,10 @@ main() {
   cp "$ROOT_DIR/templates/server/"*.tpl "$snapshot_dir/templates/server/"
   cp "$ROOT_DIR/templates/systemd/"*.tpl "$snapshot_dir/templates/systemd/"
   cp "$ROOT_DIR/templates/client/"*.tpl "$snapshot_dir/templates/client/"
+  cat >"$snapshot_dir/reality-targets" <<'EOF'
+addons.mozilla.org:443
+www.apple.com:443
+EOF
   printf 'edge.example.com\n' >"$snapshot_dir/connect-address"
 
   cat >"$package_dir/xray" <<'EOF'
@@ -63,6 +67,8 @@ EOF
   T1C_SKIP_ROOT_CHECK=1 \
   T1C_SKIP_SYSTEMD=1 \
   T1C_SKIP_DEPENDENCY_INSTALL=1 \
+  T1C_PROBE_FIXTURES=$'addons.mozilla.org:443|ok|83\nwww.apple.com:443|ok|95' \
+  T1C_DIG_OUTPUT='203.0.113.25' \
   T1C_SNAPSHOT_DIR="$snapshot_dir" \
   T1C_XRAY_PACKAGE_DIR="$package_dir" \
   T1C_PUBLIC_IP="203.0.113.25" \
@@ -76,6 +82,8 @@ EOF
 
   assert_eq "$(awk -F= '/^UUID=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   assert_eq "$(awk -F= '/^SERVER_IP=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "203.0.113.25"
+  assert_eq "$(awk -F= '/^REALITY_TARGET=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "addons.mozilla.org:443"
+  assert_eq "$(awk -F= '/^REALITY_SERVER_NAME=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "addons.mozilla.org"
   assert_eq "$(awk -F= '/^CONNECT_ADDRESS=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "edge.example.com"
   assert_match "$(cat "$state_dir/connection.txt")" 'public-value'
   assert_match "$(cat "$state_dir/connection.txt")" 'Server Address: edge\.example\.com'

@@ -54,7 +54,34 @@ t1c_lookup_ipv4() {
     return 0
   fi
 
-  dig +short A "$1" | awk 'NF'
+  if command -v dig >/dev/null 2>&1; then
+    dig +short A "$1" | awk 'NF'
+    return 0
+  fi
+
+  if command -v getent >/dev/null 2>&1; then
+    getent ahostsv4 "$1" | awk '{print $1}' | awk 'NF' | sort -u
+    return 0
+  fi
+
+  return 1
+}
+
+t1c_check_fixture_line_for_target() {
+  local target="$1"
+  local line fixture_target
+
+  [[ -n "${T1C_CHECK_FIXTURES:-}" ]] || return 1
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ -z "$line" ]] && continue
+    fixture_target="${line%%|*}"
+    [[ "$fixture_target" == "$target" ]] || continue
+    printf '%s\n' "$line"
+    return 0
+  done <<<"$T1C_CHECK_FIXTURES"
+
+  return 1
 }
 
 t1c_validate_connect_address() {
@@ -205,12 +232,27 @@ t1c_target_latency_ms() {
 
 t1c_emit_target_report() {
   local target="$1"
-  local host port dns_ok tcp_ok tls_ok tls_version alpn_h2 san_ok latency_ms reason=""
+  local host port dns_ok tcp_ok tls_ok tls_version alpn_h2 san_ok latency_ms reason="" fixture_line fixture_status fixture_value
 
   host="$(t1c_target_host "$target")"
   port="$(t1c_target_port "$target")"
 
   printf 'TARGET=%s\n' "$target"
+
+  if fixture_line="$(t1c_check_fixture_line_for_target "$target")"; then
+    fixture_status="${fixture_line#*|}"
+    fixture_status="${fixture_status%%|*}"
+    fixture_value="${fixture_line##*|}"
+
+    if [[ "$fixture_status" == "ok" ]]; then
+      printf 'DNS_OK=1\nTCP_OK=1\nTLS_OK=1\nTLS_VERSION=TLSv1.3\nALPN_H2=1\nSAN_MATCH=1\nLATENCY_MS=%s\n' "$fixture_value"
+      return 0
+    fi
+
+    printf 'DNS_OK=0\nTCP_OK=0\nTLS_OK=0\nTLS_VERSION=\nALPN_H2=0\nSAN_MATCH=0\nLATENCY_MS=\n'
+    printf 'REASON=%s\n' "$fixture_value"
+    return 1
+  fi
 
   if [[ -z "$host" || ! "$port" =~ ^[0-9]+$ ]]; then
     printf 'DNS_OK=0\nTCP_OK=0\nTLS_OK=0\nTLS_VERSION=\nALPN_H2=0\nSAN_MATCH=0\nLATENCY_MS=\n'
