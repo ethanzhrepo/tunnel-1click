@@ -48,6 +48,8 @@ EOF
 
   assert_eq "$(t1c_normalize_arch x86_64)" "x86_64"
   assert_eq "$(t1c_normalize_arch arm64)" "aarch64"
+  assert_eq "$(t1c_is_ipv4 "203.0.113.10"; printf '%s' "$?")" "0"
+  assert_eq "$(t1c_is_ipv4 "edge.example.com"; printf '%s' "$?")" "1"
   assert_eq "$(T1C_STATE_DIR="$state_dir" t1c_state_dir)" "$state_dir"
   assert_eq "$(T1C_CONF_DIR="$conf_dir" t1c_conf_dir)" "$conf_dir"
   assert_eq "$(T1C_BIN_DIR="$bin_dir" t1c_bin_dir)" "$bin_dir"

@@ -100,6 +100,10 @@ t1c_detect_arch() {
   t1c_normalize_arch "$(uname -m)"
 }
 
+t1c_is_ipv4() {
+  [[ "$1" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]
+}
+
 t1c_state_dir() {
   printf '%s\n' "${T1C_STATE_DIR:-/var/lib/tunnel-1click}"
 }

@@ -47,3 +47,26 @@ t1c_target_host() {
 t1c_target_port() {
   printf '%s\n' "${1##*:}"
 }
+
+t1c_lookup_ipv4() {
+  if [[ -n "${T1C_DIG_OUTPUT:-}" ]]; then
+    printf '%s\n' "$T1C_DIG_OUTPUT"
+    return 0
+  fi
+
+  dig +short A "$1" | awk 'NF'
+}
+
+t1c_validate_connect_address() {
+  local connect_address="$1"
+  local public_ip="$2"
+  local resolved
+
+  if t1c_is_ipv4 "$connect_address"; then
+    [[ "$connect_address" == "$public_ip" ]]
+    return
+  fi
+
+  resolved="$(t1c_lookup_ipv4 "$connect_address")"
+  grep -Fx "$public_ip" <<<"$resolved" >/dev/null 2>&1
+}

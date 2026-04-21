@@ -35,6 +35,9 @@ EOF
   assert_eq "$(t1c_read_connect_address "$connect_file")" "edge.example.com"
   assert_eq "$(t1c_target_host "addons.mozilla.org:443")" "addons.mozilla.org"
   assert_eq "$(t1c_target_port "addons.mozilla.org:443")" "443"
+  T1C_DIG_OUTPUT=$'203.0.113.10\n198.51.100.7'
+  assert_eq "$(t1c_validate_connect_address "edge.example.com" "203.0.113.10"; printf '%s' "$?")" "0"
+  assert_eq "$(t1c_validate_connect_address "edge.example.com" "192.0.2.1"; printf '%s' "$?")" "1"
 }
 
 main "$@"
