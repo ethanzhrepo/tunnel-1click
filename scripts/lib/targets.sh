@@ -251,3 +251,56 @@ t1c_emit_target_report() {
 
   [[ -z "$reason" ]]
 }
+
+t1c_probe_latency_for_target() {
+  local target="$1"
+  local line fixture_target fixture_status fixture_latency output latency
+
+  if [[ -n "${T1C_PROBE_FIXTURES:-}" ]]; then
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      [[ -z "$line" ]] && continue
+      fixture_target="${line%%|*}"
+      fixture_status="${line#*|}"
+      fixture_status="${fixture_status%%|*}"
+      fixture_latency="${line##*|}"
+      [[ "$fixture_target" == "$target" ]] || continue
+      [[ "$fixture_status" == "ok" ]] || return 1
+      printf '%s\n' "$fixture_latency"
+      return 0
+    done <<<"$T1C_PROBE_FIXTURES"
+    return 1
+  fi
+
+  output="$(bash "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/check.sh" "$target" 2>/dev/null)" || return 1
+  latency="$(awk -F= '/^LATENCY_MS=/{print $2}' <<<"$output")"
+  [[ -n "$latency" ]] || return 1
+  printf '%s\n' "$latency"
+}
+
+t1c_probe_best_target() {
+  local targets_file="$1"
+  local line latency best_target="" best_latency="" ok_count=0
+  local summaries=()
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ -z "$line" ]] && continue
+    if latency="$(t1c_probe_latency_for_target "$line")"; then
+      summaries+=("OK ${line} score=$((100000 - latency)) latency=${latency}")
+      ok_count=$((ok_count + 1))
+      if [[ -z "$best_latency" || "$latency" -lt "$best_latency" ]]; then
+        best_target="$line"
+        best_latency="$latency"
+      fi
+    else
+      summaries+=("FAIL ${line} reason=target_check_failed")
+    fi
+  done < <(t1c_read_target_candidates "$targets_file")
+
+  [[ -n "$best_target" ]] || return 1
+
+  printf 'BEST_TARGET=%s\n' "$best_target"
+  printf 'BEST_SERVER_NAME=%s\n' "$(t1c_target_host "$best_target")"
+  printf 'BEST_LATENCY_MS=%s\n' "$best_latency"
+  printf 'CANDIDATES_OK=%s\n' "$ok_count"
+  printf '%s\n' "${summaries[@]}"
+}
