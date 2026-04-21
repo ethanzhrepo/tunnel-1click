@@ -9,7 +9,7 @@ t1c_bootstrap_delegate_path() {
 }
 
 t1c_bootstrap_exec_delegate() {
-  exec "$@"
+  exec bash "$@"
 }
 
 t1c_bootstrap_fetch_snapshot() {
