@@ -7,10 +7,6 @@
     {
       "tag": "block",
       "protocol": "blackhole"
-    },
-    {
-      "tag": "dns-out",
-      "protocol": "dns"
     }
   ]
 }

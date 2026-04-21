@@ -28,12 +28,19 @@ main() {
   export REALITY_SHORT_ID="0123456789abcdef"
   export REALITY_TARGET="addons.mozilla.org:443"
   export REALITY_SERVER_NAME="addons.mozilla.org"
+  export REALITY_FALLBACK_PORT="4431"
   export TLS_FINGERPRINT="chrome"
 
   t1c_render_snapshot "$snapshot_dir" "$output_dir"
 
-  assert_match "$(cat "$output_dir/server/40-inbounds-reality.json")" '"target":[[:space:]]*"addons.mozilla.org:443"'
+  assert_match "$(cat "$output_dir/server/40-inbounds-reality.json")" '"tag":[[:space:]]*"dokodemo-in"'
+  assert_match "$(cat "$output_dir/server/40-inbounds-reality.json")" '"address":[[:space:]]*"addons.mozilla.org"'
+  assert_match "$(cat "$output_dir/server/40-inbounds-reality.json")" '"port":[[:space:]]*443'
+  assert_match "$(cat "$output_dir/server/40-inbounds-reality.json")" '"target":[[:space:]]*"127.0.0.1:4431"'
   assert_match "$(cat "$output_dir/server/40-inbounds-reality.json")" '"id":[[:space:]]*"11111111-1111-1111-1111-111111111111"'
+  assert_match "$(cat "$output_dir/server/30-routing.json")" '"inboundTag":[[:space:]]*\[[[:space:]]*"dokodemo-in"[[:space:]]*\]'
+  assert_match "$(cat "$output_dir/server/30-routing.json")" '"domain":[[:space:]]*\[[[:space:]]*"addons.mozilla.org"[[:space:]]*\]'
+  assert_match "$(cat "$output_dir/server/30-routing.json")" '"outboundTag":[[:space:]]*"block"'
   assert_match "$(cat "$output_dir/connection.txt")" 'URI: vless://11111111-1111-1111-1111-111111111111@203\.0\.113\.10:443'
 }
 

@@ -5,6 +5,18 @@ t1c_escape_sed_replacement() {
   printf '%s' "$1" | sed -e 's/[&|]/\\&/g'
 }
 
+t1c_reality_target_host() {
+  printf '%s' "${REALITY_TARGET%:*}"
+}
+
+t1c_reality_target_port() {
+  printf '%s' "${REALITY_TARGET##*:}"
+}
+
+t1c_reality_fallback_port() {
+  printf '%s' "${REALITY_FALLBACK_PORT:-4431}"
+}
+
 t1c_render_one() {
   local template_file="$1"
   local output_file="$2"
@@ -19,7 +31,10 @@ t1c_render_one() {
     -e "s|__REALITY_PUBLIC_KEY__|$(t1c_escape_sed_replacement "${REALITY_PUBLIC_KEY}")|g" \
     -e "s|__REALITY_SHORT_ID__|$(t1c_escape_sed_replacement "${REALITY_SHORT_ID}")|g" \
     -e "s|__REALITY_TARGET__|$(t1c_escape_sed_replacement "${REALITY_TARGET}")|g" \
+    -e "s|__REALITY_TARGET_HOST__|$(t1c_escape_sed_replacement "$(t1c_reality_target_host)")|g" \
+    -e "s|__REALITY_TARGET_PORT__|$(t1c_escape_sed_replacement "$(t1c_reality_target_port)")|g" \
     -e "s|__REALITY_SERVER_NAME__|$(t1c_escape_sed_replacement "${REALITY_SERVER_NAME}")|g" \
+    -e "s|__REALITY_FALLBACK_PORT__|$(t1c_escape_sed_replacement "$(t1c_reality_fallback_port)")|g" \
     -e "s|__TLS_FINGERPRINT__|$(t1c_escape_sed_replacement "${TLS_FINGERPRINT}")|g" \
     "$template_file" >"$output_file"
 }

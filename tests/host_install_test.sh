@@ -76,7 +76,9 @@ EOF
   assert_eq "$(awk -F= '/^UUID=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   assert_eq "$(awk -F= '/^SERVER_IP=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "203.0.113.25"
   assert_match "$(cat "$state_dir/connection.txt")" 'public-value'
-  assert_match "$(cat "$conf_dir/40-inbounds-reality.json")" '"addons.mozilla.org"'
+  assert_match "$(cat "$conf_dir/40-inbounds-reality.json")" '"tag":[[:space:]]*"dokodemo-in"'
+  assert_match "$(cat "$conf_dir/40-inbounds-reality.json")" '"target":[[:space:]]*"127.0.0.1:4431"'
+  assert_match "$(cat "$conf_dir/30-routing.json")" '"domain":[[:space:]]*\[[[:space:]]*"addons.mozilla.org"[[:space:]]*\]'
 }
 
 main "$@"

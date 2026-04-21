@@ -27,7 +27,7 @@ Default behavior:
 - Generates a new UUID
 - Generates a new REALITY private/public key pair
 - Generates a new REALITY short ID
-- Uses `addons.mozilla.org:443` as the default REALITY target
+- Uses `addons.mozilla.org:443` as the default REALITY upstream target
 - Uses `addons.mozilla.org` as the default REALITY server name
 - Uses `chrome` as the client fingerprint
 - Uses DoH resolvers:
@@ -166,6 +166,8 @@ Installed config files:
 - `50-outbounds.json`
 - `60-policy.json`
 
+The REALITY fallback is not wired as a direct public port-forward. The generated config uses a local `dokodemo-door` inbound and routing allowlist so only the configured REALITY server name is forwarded upstream; all other unauthenticated fallback traffic is blocked.
+
 ## What The Installer Prints
 
 At the end of a successful install or update, the script prints:
@@ -207,8 +209,9 @@ If no IP can be determined, installation stops with an error.
 ## Notes And Limitations
 
 - This project is intentionally opinionated. It is not a generic Xray panel or multi-protocol installer.
-- The current default REALITY target is `addons.mozilla.org:443`.
+- The current default REALITY upstream target is `addons.mozilla.org:443`.
 - The current default REALITY server name is `addons.mozilla.org`.
+- Unauthenticated REALITY fallback traffic is only allowed to the configured server name through a local `dokodemo-door` relay; other fallback traffic is blocked.
 - The installer assumes a host with `systemd`.
 - The bootstrap command uses `sh`, but the fetched host-side workflow uses `bash`.
 - Update preserves client credentials by default. If you want a different UUID or REALITY identity, change the state or code path explicitly.

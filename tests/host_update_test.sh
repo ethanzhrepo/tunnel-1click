@@ -99,6 +99,8 @@ EOF
   assert_eq "$(awk -F= '/^SERVER_IP=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "203.0.113.44"
   assert_match "$(cat "$state_dir/connection.txt")" '203\.0\.113\.44'
   assert_match "$(cat "$state_dir/connection.txt")" 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+  assert_match "$(cat "$conf_dir/40-inbounds-reality.json")" '"target":[[:space:]]*"127.0.0.1:4431"'
+  assert_match "$(cat "$conf_dir/30-routing.json")" '"domain":[[:space:]]*\[[[:space:]]*"addons.mozilla.org"[[:space:]]*\]'
 }
 
 main "$@"
