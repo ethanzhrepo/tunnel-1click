@@ -41,6 +41,7 @@ main() {
   cp "$ROOT_DIR/templates/systemd/"*.tpl "$snapshot_dir/templates/systemd/"
   cp "$ROOT_DIR/templates/client/"*.tpl "$snapshot_dir/templates/client/"
   printf 'v26.3.27\n' >"$snapshot_dir/version"
+  printf 'edge.example.com\n' >"$snapshot_dir/connect-address"
 
   cat >"$package_dir/xray" <<'EOF'
 #!/usr/bin/env bash
@@ -79,6 +80,8 @@ REALITY_SHORT_ID='0011223344556677'
 REALITY_TARGET='addons.mozilla.org:443'
 REALITY_SERVER_NAME='addons.mozilla.org'
 TLS_FINGERPRINT='chrome'
+CONNECT_ADDRESS='old.example.com'
+CONNECT_ADDRESS_SOURCE='config'
 EOF
 
   T1C_SKIP_ROOT_CHECK=1 \
@@ -97,8 +100,10 @@ EOF
   assert_eq "$(awk -F= '/^UUID=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
   assert_eq "$(awk -F= '/^XRAY_VERSION=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "v26.3.27"
   assert_eq "$(awk -F= '/^SERVER_IP=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "203.0.113.44"
-  assert_match "$(cat "$state_dir/connection.txt")" '203\.0\.113\.44'
+  assert_eq "$(awk -F= '/^CONNECT_ADDRESS=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "edge.example.com"
+  assert_match "$(cat "$state_dir/connection.txt")" 'edge\.example\.com'
   assert_match "$(cat "$state_dir/connection.txt")" 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+  assert_match "$(cat "$state_dir/connection.txt")" 'Server Address: edge\.example\.com'
   assert_match "$(cat "$conf_dir/40-inbounds-reality.json")" '"target":[[:space:]]*"127.0.0.1:4431"'
   assert_match "$(cat "$conf_dir/30-routing.json")" '"domain":[[:space:]]*\[[[:space:]]*"addons.mozilla.org"[[:space:]]*\]'
 }

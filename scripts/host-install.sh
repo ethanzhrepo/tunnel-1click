@@ -52,7 +52,7 @@ t1c_install_ensure_dependencies() {
 }
 
 t1c_install_main() {
-  local snapshot_dir package_dir render_dir version arch uuid keypair private_key public_key short_id server_ip
+  local snapshot_dir package_dir render_dir version arch uuid keypair private_key public_key short_id server_ip repo_connect_address resolved_connect_address connect_address_source
 
   t1c_require_root
   t1c_install_ensure_dependencies
@@ -87,6 +87,16 @@ t1c_install_main() {
   export REALITY_TARGET="addons.mozilla.org:443"
   export REALITY_SERVER_NAME="addons.mozilla.org"
   export TLS_FINGERPRINT="chrome"
+  repo_connect_address="$(t1c_read_connect_address "$snapshot_dir/connect-address")"
+  if [[ -n "$repo_connect_address" ]]; then
+    resolved_connect_address="$repo_connect_address"
+    connect_address_source="config"
+  else
+    resolved_connect_address="$server_ip"
+    connect_address_source="ip"
+  fi
+  export CONNECT_ADDRESS="$resolved_connect_address"
+  export CONNECT_ADDRESS_SOURCE="$connect_address_source"
 
   render_dir="$(mktemp -d "${TMPDIR:-/tmp}/t1c-render.XXXXXX")"
   t1c_render_snapshot "$snapshot_dir" "$render_dir"
@@ -103,7 +113,9 @@ t1c_install_main() {
     "REALITY_SHORT_ID=$REALITY_SHORT_ID" \
     "REALITY_TARGET=$REALITY_TARGET" \
     "REALITY_SERVER_NAME=$REALITY_SERVER_NAME" \
-    "TLS_FINGERPRINT=$TLS_FINGERPRINT"
+    "TLS_FINGERPRINT=$TLS_FINGERPRINT" \
+    "CONNECT_ADDRESS=$CONNECT_ADDRESS" \
+    "CONNECT_ADDRESS_SOURCE=$CONNECT_ADDRESS_SOURCE"
 
   t1c_validate_config
   t1c_enable_and_start_service || {

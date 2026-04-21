@@ -11,7 +11,7 @@ source "$SCRIPT_DIR/lib/render.sh"
 source "$SCRIPT_DIR/lib/runtime.sh"
 
 t1c_update_main() {
-  local snapshot_dir package_dir render_dir desired_version current_version current_arch server_ip
+  local snapshot_dir package_dir render_dir desired_version current_version current_arch server_ip repo_connect_address resolved_connect_address connect_address_source
 
   t1c_require_root
 
@@ -42,7 +42,17 @@ t1c_update_main() {
   fi
 
   SERVER_IP="$server_ip"
-  export XRAY_VERSION XRAY_PORT SERVER_IP UUID REALITY_PRIVATE_KEY REALITY_PUBLIC_KEY REALITY_SHORT_ID REALITY_TARGET REALITY_SERVER_NAME TLS_FINGERPRINT
+  repo_connect_address="$(t1c_read_connect_address "$snapshot_dir/connect-address")"
+  if [[ -n "$repo_connect_address" ]]; then
+    resolved_connect_address="$repo_connect_address"
+    connect_address_source="config"
+  else
+    resolved_connect_address="$server_ip"
+    connect_address_source="ip"
+  fi
+  CONNECT_ADDRESS="$resolved_connect_address"
+  CONNECT_ADDRESS_SOURCE="$connect_address_source"
+  export XRAY_VERSION XRAY_PORT SERVER_IP UUID REALITY_PRIVATE_KEY REALITY_PUBLIC_KEY REALITY_SHORT_ID REALITY_TARGET REALITY_SERVER_NAME TLS_FINGERPRINT CONNECT_ADDRESS CONNECT_ADDRESS_SOURCE
 
   render_dir="$(mktemp -d "${TMPDIR:-/tmp}/t1c-render.XXXXXX")"
   t1c_render_snapshot "$snapshot_dir" "$render_dir"
@@ -62,7 +72,9 @@ t1c_update_main() {
     "REALITY_SHORT_ID=$REALITY_SHORT_ID" \
     "REALITY_TARGET=$REALITY_TARGET" \
     "REALITY_SERVER_NAME=$REALITY_SERVER_NAME" \
-    "TLS_FINGERPRINT=$TLS_FINGERPRINT"
+    "TLS_FINGERPRINT=$TLS_FINGERPRINT" \
+    "CONNECT_ADDRESS=$CONNECT_ADDRESS" \
+    "CONNECT_ADDRESS_SOURCE=$CONNECT_ADDRESS_SOURCE"
 
   t1c_validate_config
   t1c_restart_service || {

@@ -26,6 +26,7 @@ t1c_render_one() {
     -e "s|__XRAY_VERSION__|$(t1c_escape_sed_replacement "${XRAY_VERSION}")|g" \
     -e "s|__XRAY_PORT__|$(t1c_escape_sed_replacement "${XRAY_PORT}")|g" \
     -e "s|__SERVER_IP__|$(t1c_escape_sed_replacement "${SERVER_IP}")|g" \
+    -e "s|__CONNECT_ADDRESS__|$(t1c_escape_sed_replacement "${CONNECT_ADDRESS}")|g" \
     -e "s|__UUID__|$(t1c_escape_sed_replacement "${UUID}")|g" \
     -e "s|__REALITY_PRIVATE_KEY__|$(t1c_escape_sed_replacement "${REALITY_PRIVATE_KEY}")|g" \
     -e "s|__REALITY_PUBLIC_KEY__|$(t1c_escape_sed_replacement "${REALITY_PUBLIC_KEY}")|g" \
