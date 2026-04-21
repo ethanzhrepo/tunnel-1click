@@ -20,6 +20,17 @@ The repository provides two public entrypoints:
 
 They are designed to be executed on the target server itself. The bootstrap script fetches this repository as a GitHub tarball, then runs the full host-side workflow locally.
 
+Repository-controlled config files:
+
+- `version`: target Xray release
+- `reality-targets`: candidate REALITY upstream targets in `host:port` form
+- `connect-address`: optional client-facing address printed in the final URI
+
+Helper scripts:
+
+- `scripts/check.sh`: validate one REALITY target candidate
+- `scripts/probe.sh`: rank repository candidates and print the best target
+
 Default behavior:
 
 - Installs the Xray version from the repo `version` file
@@ -27,8 +38,8 @@ Default behavior:
 - Generates a new UUID
 - Generates a new REALITY private/public key pair
 - Generates a new REALITY short ID
-- Uses `addons.mozilla.org:443` as the default REALITY upstream target
-- Uses `addons.mozilla.org` as the default REALITY server name
+- Uses the best currently available target from `reality-targets` during install
+- Reuses the saved REALITY target during update when it still passes validation
 - Uses `chrome` as the client fingerprint
 - Uses DoH resolvers:
   - `https+local://1.1.1.1/dns-query`
@@ -98,11 +109,14 @@ curl -fsSL https://raw.githubusercontent.com/ethanzhrepo/tunnel-1click/main/inst
    - REALITY public key
    - REALITY short ID
 8. Detects the public server IP
-9. Renders Xray config templates from this repository
-10. Installs Xray, config files, and a `systemd` unit
-11. Validates the config before starting the service
-12. Enables and starts `xray`
-13. Prints connection details and the final VLESS URI
+9. Runs `scripts/probe.sh` against `reality-targets`
+10. Selects the best candidate as `REALITY_TARGET` and derives `REALITY_SERVER_NAME`
+11. Reads `connect-address` and validates it against the current server IP when configured
+12. Renders Xray config templates from this repository
+13. Installs Xray, config files, and a `systemd` unit
+14. Validates the config before starting the service
+15. Enables and starts `xray`
+16. Prints connection details and the final VLESS URI
 
 The install is designed to be zero-interaction unless the environment is missing required prerequisites or the install fails.
 
@@ -116,17 +130,18 @@ If Xray is already installed, it will:
 2. Re-detect the current public IP
 3. Read the target version from this repository
 4. Replace the Xray binary and data files if the version changed
-5. Re-render the config from the latest templates in this repository
-6. Preserve existing client credentials by default:
+5. Validate the saved REALITY target with `scripts/check.sh`
+6. If the saved target fails, scan `reality-targets` top-to-bottom and switch to the first valid candidate
+7. Re-read `connect-address` and validate it when configured
+8. Re-render the config from the latest templates in this repository
+9. Preserve existing client credentials by default:
    - UUID
    - REALITY private key
    - REALITY public key
    - REALITY short ID
    - port
-   - target
-   - server name
-7. Restart `xray`
-8. Print the current connection details again
+10. Restart `xray`
+11. Print the current connection details again
 
 If Xray is not installed yet, `update.sh` falls back to the install flow.
 
@@ -149,6 +164,13 @@ Persistent state:
 - `/var/lib/tunnel-1click/rendered/`
 - `/var/lib/tunnel-1click/cache/`
 
+Saved state includes:
+
+- `REALITY_TARGET`
+- `REALITY_SERVER_NAME`
+- `CONNECT_ADDRESS`
+- `CONNECT_ADDRESS_SOURCE`
+
 ## Xray Configuration Layout
 
 The project uses native Xray multi-file config loading via:
@@ -168,11 +190,67 @@ Installed config files:
 
 The REALITY fallback is not wired as a direct public port-forward. The generated config uses a local `dokodemo-door` inbound and routing allowlist so only the configured REALITY server name is forwarded upstream; all other unauthenticated fallback traffic is blocked.
 
+## Target Selection
+
+`reality-targets` contains the pool of upstream camouflage targets.
+
+Example:
+
+```text
+addons.mozilla.org:443
+www.apple.com:443
+www.cloudflare.com:443
+```
+
+Install behavior:
+
+- `scripts/probe.sh` checks all repository candidates
+- the best valid candidate becomes `REALITY_TARGET`
+- `REALITY_SERVER_NAME` defaults to the target host
+
+Update behavior:
+
+- validates the saved target first
+- only switches targets when the saved one fails validation
+- falls back to the first valid repository candidate
+
+You can also run the helper scripts manually:
+
+```sh
+bash scripts/check.sh addons.mozilla.org:443
+bash scripts/probe.sh
+```
+
+## Connect Address
+
+`connect-address` is optional and only affects what address is printed to the client.
+
+Examples:
+
+```text
+edge.example.com
+```
+
+or:
+
+```text
+203.0.113.10
+```
+
+If the file is absent or commented out, the generated URI uses the detected public IP.
+
+In the current REALITY mode, `connect-address` does not:
+
+- change `REALITY_TARGET`
+- change `REALITY_SERVER_NAME`
+- require `acme.sh`
+- require a server-managed TLS certificate just because clients connect by domain instead of IP
+
 ## What The Installer Prints
 
 At the end of a successful install or update, the script prints:
 
-- Server IP
+- Server address
 - Port
 - UUID
 - Flow
@@ -192,7 +270,7 @@ The same content is also saved to:
 The generated URI format is:
 
 ```text
-vless://UUID@SERVER_IP:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=SERVER_NAME&fp=chrome&pbk=PUBLIC_KEY&sid=SHORT_ID&type=tcp&headerType=none#xray-reality-SERVER_IP
+vless://UUID@SERVER_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=SERVER_NAME&fp=chrome&pbk=PUBLIC_KEY&sid=SHORT_ID&type=tcp&headerType=none#xray-reality-SERVER_ADDRESS
 ```
 
 ## Public IP Detection
@@ -209,8 +287,7 @@ If no IP can be determined, installation stops with an error.
 ## Notes And Limitations
 
 - This project is intentionally opinionated. It is not a generic Xray panel or multi-protocol installer.
-- The current default REALITY upstream target is `addons.mozilla.org:443`.
-- The current default REALITY server name is `addons.mozilla.org`.
+- The repository default target pool currently starts with `addons.mozilla.org:443`.
 - Unauthenticated REALITY fallback traffic is only allowed to the configured server name through a local `dokodemo-door` relay; other fallback traffic is blocked.
 - The installer assumes a host with `systemd`.
 - The bootstrap command uses `sh`, but the fetched host-side workflow uses `bash`.
