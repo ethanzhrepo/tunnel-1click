@@ -26,6 +26,8 @@ main() {
   assert_match "$(cat "$page")" 'data-copy-target='
   assert_match "$(cat "$page")" 'navigator\.clipboard\.writeText'
   assert_match "$(cat "$page")" 'Press Ctrl/Cmd\+C'
+  assert_not_match "$(cat "$page")" 'class="copy-button-text"'
+  assert_not_match "$(cat "$page")" '>Copy<'
 
   copy_count="$(grep -o 'class="copy-button"' "$page" | wc -l | tr -d ' ')"
   assert_eq "$copy_count" "5"
