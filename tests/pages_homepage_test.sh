@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/tests/test_helper.sh"
 
 main() {
-  local page
+  local page copy_count
 
   page="$ROOT_DIR/index.html"
 
@@ -23,6 +23,12 @@ main() {
   assert_match "$(cat "$page")" 'systemctl restart xray'
   assert_match "$(cat "$page")" 'journalctl -u xray -n 50 --no-pager'
   assert_match "$(cat "$page")" 'tail -n 50 /var/log/xray/error\.log'
+  assert_match "$(cat "$page")" 'data-copy-target='
+  assert_match "$(cat "$page")" 'navigator\.clipboard\.writeText'
+  assert_match "$(cat "$page")" 'Press Ctrl/Cmd\+C'
+
+  copy_count="$(grep -o 'class="copy-button"' "$page" | wc -l | tr -d ' ')"
+  assert_eq "$copy_count" "5"
 }
 
 main "$@"

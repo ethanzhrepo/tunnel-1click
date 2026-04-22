@@ -182,19 +182,81 @@
       border-radius: 20px;
       padding: 16px 18px;
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      overflow-x: auto;
       font: 500 0.92rem/1.55 "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
-      white-space: pre-wrap;
-      word-break: break-word;
+    }
+
+    .command-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
     }
 
     .command-label {
-      display: block;
-      margin-bottom: 8px;
+      display: inline-flex;
+      align-items: center;
       color: rgba(246, 242, 232, 0.72);
       font-size: 0.73rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
+    }
+
+    .command-text {
+      margin: 0;
+      overflow-x: auto;
+      color: inherit;
+      font: inherit;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .copy-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      border: 1px solid rgba(246, 242, 232, 0.18);
+      border-radius: 999px;
+      background: rgba(246, 242, 232, 0.1);
+      color: rgba(246, 242, 232, 0.92);
+      padding: 7px 10px;
+      font: 600 0.76rem/1 "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+      cursor: pointer;
+      transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+    }
+
+    .copy-button:hover {
+      transform: translateY(-1px);
+      background: rgba(246, 242, 232, 0.16);
+      border-color: rgba(246, 242, 232, 0.28);
+    }
+
+    .copy-button:focus-visible {
+      outline: 2px solid rgba(246, 242, 232, 0.7);
+      outline-offset: 2px;
+    }
+
+    .copy-button[data-state="copied"] {
+      background: rgba(122, 164, 108, 0.22);
+      border-color: rgba(155, 203, 133, 0.42);
+      color: #f3ffe8;
+    }
+
+    .copy-button[data-state="error"] {
+      background: rgba(196, 147, 94, 0.22);
+      border-color: rgba(224, 180, 120, 0.42);
+      color: #fff4e8;
+    }
+
+    .copy-button svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .copy-button-text {
+      white-space: nowrap;
     }
 
     .hero-actions,
@@ -403,7 +465,18 @@
             Deploy a practical Xray REALITY server with one install command, keep the runtime
             readable, and come back later to the exact service and log commands you need.
           </p>
-          <div class="command-block"><span class="command-label">Install</span>curl -fsSL https://0x99.link/install.sh | sh</div>
+          <div class="command-block">
+            <div class="command-head">
+              <span class="command-label">Install</span>
+              <button class="copy-button" type="button" data-copy-target="install-command" aria-label="Copy install command">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
+                </svg>
+                <span class="copy-button-text">Copy</span>
+              </button>
+            </div>
+            <pre class="command-text" id="install-command">curl -fsSL https://0x99.link/install.sh | sh</pre>
+          </div>
           <div class="hero-actions">
             <a class="button-link" href="install.sh">Open install.sh</a>
             <a class="button-link" href="update.sh">Open update.sh</a>
@@ -467,22 +540,66 @@
       <div class="quick-grid">
         <article class="quick-panel">
           <h3>Update</h3>
-          <div class="command-block"><span class="command-label">Update</span>curl -fsSL https://0x99.link/update.sh | sh</div>
+          <div class="command-block">
+            <div class="command-head">
+              <span class="command-label">Update</span>
+              <button class="copy-button" type="button" data-copy-target="update-command" aria-label="Copy update command">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
+                </svg>
+                <span class="copy-button-text">Copy</span>
+              </button>
+            </div>
+            <pre class="command-text" id="update-command">curl -fsSL https://0x99.link/update.sh | sh</pre>
+          </div>
         </article>
         <article class="quick-panel">
           <h3>Service Control</h3>
-          <div class="command-block"><span class="command-label">systemd</span>systemctl start xray
+          <div class="command-block">
+            <div class="command-head">
+              <span class="command-label">systemd</span>
+              <button class="copy-button" type="button" data-copy-target="service-command" aria-label="Copy service control commands">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
+                </svg>
+                <span class="copy-button-text">Copy</span>
+              </button>
+            </div>
+            <pre class="command-text" id="service-command">systemctl start xray
 systemctl stop xray
-systemctl restart xray</div>
+systemctl restart xray</pre>
+          </div>
         </article>
         <article class="quick-panel">
           <h3>Status And Journal</h3>
-          <div class="command-block"><span class="command-label">Inspect</span>systemctl status xray --no-pager
-journalctl -u xray -n 50 --no-pager</div>
+          <div class="command-block">
+            <div class="command-head">
+              <span class="command-label">Inspect</span>
+              <button class="copy-button" type="button" data-copy-target="inspect-command" aria-label="Copy inspect commands">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
+                </svg>
+                <span class="copy-button-text">Copy</span>
+              </button>
+            </div>
+            <pre class="command-text" id="inspect-command">systemctl status xray --no-pager
+journalctl -u xray -n 50 --no-pager</pre>
+          </div>
         </article>
         <article class="quick-panel">
           <h3>Error Log</h3>
-          <div class="command-block"><span class="command-label">Tail</span>tail -n 50 /var/log/xray/error.log</div>
+          <div class="command-block">
+            <div class="command-head">
+              <span class="command-label">Tail</span>
+              <button class="copy-button" type="button" data-copy-target="error-log-command" aria-label="Copy error log command">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
+                </svg>
+                <span class="copy-button-text">Copy</span>
+              </button>
+            </div>
+            <pre class="command-text" id="error-log-command">tail -n 50 /var/log/xray/error.log</pre>
+          </div>
         </article>
       </div>
     </section>
@@ -525,5 +642,67 @@ journalctl -u xray -n 50 --no-pager</div>
       0x99.link publishes the landing page and distribution files. Xray release assets still come from the official upstream project.
     </footer>
   </main>
+  <script>
+    (() => {
+      const buttons = document.querySelectorAll('.copy-button');
+
+      function copyWithFallback(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'absolute';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        const copied = document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        if (!copied) {
+          throw new Error('fallback_copy_failed');
+        }
+      }
+
+      function setButtonState(button, nextText, nextState) {
+        const label = button.querySelector('.copy-button-text');
+        label.textContent = nextText;
+        button.dataset.state = nextState;
+
+        window.clearTimeout(button._copyResetTimer);
+        button._copyResetTimer = window.setTimeout(() => {
+          label.textContent = 'Copy';
+          button.dataset.state = '';
+        }, 1800);
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const target = document.getElementById(button.dataset.copyTarget);
+
+          if (!target) {
+            return;
+          }
+
+          const text = target.textContent.trim();
+
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(text);
+            } else {
+              copyWithFallback(text);
+            }
+            setButtonState(button, 'Copied', 'copied');
+          } catch (error) {
+            try {
+              copyWithFallback(text);
+              setButtonState(button, 'Copied', 'copied');
+            } catch (fallbackError) {
+              setButtonState(button, 'Press Ctrl/Cmd+C', 'error');
+            }
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
