@@ -1,0 +1,105 @@
+name: Xray Version Bump
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: xray-version-bump
+  cancel-in-progress: true
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Fetch latest Xray release
+        id: latest
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          latest_tag="$(
+            curl -fsSL https://api.github.com/repos/XTLS/Xray-core/releases/latest \
+              | sed -n 's/^[[:space:]]*"tag_name":[[:space:]]*"\([^"]*\)".*/\1/p' \
+              | head -n1
+          )"
+
+          [[ -n "$latest_tag" ]] || {
+            echo "failed to determine latest Xray release tag" >&2
+            exit 1
+          }
+
+          echo "latest_tag=$latest_tag" >>"$GITHUB_OUTPUT"
+
+      - name: Update pinned version
+        id: bump
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          output="$(bash scripts/update-xray-version.sh "${{ steps.latest.outputs.latest_tag }}")"
+          printf '%s\n' "$output"
+
+          current_version="$(awk -F= '/^CURRENT_VERSION=/{print $2}' <<<"$output")"
+          latest_version="$(awk -F= '/^LATEST_VERSION=/{print $2}' <<<"$output")"
+          updated="$(awk -F= '/^UPDATED=/{print $2}' <<<"$output")"
+
+          {
+            echo "current_version=$current_version"
+            echo "latest_version=$latest_version"
+            echo "updated=$updated"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Run test suite
+        if: steps.bump.outputs.updated == '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tests/run.sh \
+            tests/common_test.sh \
+            tests/bootstrap_test.sh \
+            tests/xray_test.sh \
+            tests/render_test.sh \
+            tests/targets_test.sh \
+            tests/check_test.sh \
+            tests/probe_test.sh \
+            tests/host_install_test.sh \
+            tests/host_update_test.sh \
+            tests/version_bump_test.sh
+
+      - name: Write pull request body
+        if: steps.bump.outputs.updated == '1'
+        shell: bash
+        run: |
+          cat > xray-version-bump-pr.md <<EOF
+          ## Summary
+          - bump \`version\` from \`${{ steps.bump.outputs.current_version }}\` to \`${{ steps.bump.outputs.latest_version }}\`
+          - keep installer behavior unchanged
+          - align the pinned Xray release with upstream
+
+          ## Upstream
+          - https://github.com/XTLS/Xray-core/releases/tag/${{ steps.bump.outputs.latest_version }}
+
+          ## Test Plan
+          - [x] bash tests/run.sh tests/common_test.sh tests/bootstrap_test.sh tests/xray_test.sh tests/render_test.sh tests/targets_test.sh tests/check_test.sh tests/probe_test.sh tests/host_install_test.sh tests/host_update_test.sh tests/version_bump_test.sh
+          EOF
+
+      - name: Create pull request
+        if: steps.bump.outputs.updated == '1'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: "chore: bump xray version to ${{ steps.bump.outputs.latest_version }}"
+          branch: "chore/xray-version-${{ steps.bump.outputs.latest_version }}"
+          delete-branch: true
+          title: "chore: bump xray version to ${{ steps.bump.outputs.latest_version }}"
+          body-path: xray-version-bump-pr.md
+          base: main

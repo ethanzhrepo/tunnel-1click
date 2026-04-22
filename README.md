@@ -9,7 +9,7 @@ This project is built for end users who want to run a single command on a Linux 
 - A `systemd` service installed and started
 - A ready-to-copy VLESS REALITY connection string printed at the end
 
-The installer is intentionally zero-interaction on the happy path.
+The installer is intentionally low-interaction on the happy path.
 
 ## What This Project Does
 
@@ -23,8 +23,8 @@ They are designed to be executed on the target server itself. The bootstrap scri
 Repository-controlled config files:
 
 - `version`: target Xray release
-- `reality-targets`: candidate REALITY upstream targets in `host:port` form
-- `connect-address`: optional client-facing address printed in the final URI
+- `reality-targets`: default REALITY upstream target candidates in `host:port` form
+- `connect-address`: default client-facing address printed in the final URI
 
 Helper scripts:
 
@@ -45,11 +45,14 @@ Default behavior:
   - `https+local://1.1.1.1/dns-query`
   - `https+local://8.8.8.8/dns-query`
 
-Current default Xray version:
+Persistent host config files:
 
-```text
-v26.3.27
-```
+- `/var/lib/tunnel-1click/reality-targets`
+- `/var/lib/tunnel-1click/connect-address`
+
+The installer uses the Xray version pinned in the repository `version` file.
+
+The repository also includes a weekly GitHub Actions workflow that checks the latest `XTLS/Xray-core` release and opens or updates a pull request when `version` changes.
 
 ## Supported Systems
 
@@ -109,16 +112,22 @@ curl -fsSL https://raw.githubusercontent.com/ethanzhrepo/tunnel-1click/main/inst
    - REALITY public key
    - REALITY short ID
 8. Detects the public server IP
-9. Runs `scripts/probe.sh` against `reality-targets`
-10. Selects the best candidate as `REALITY_TARGET` and derives `REALITY_SERVER_NAME`
-11. Reads `connect-address` and validates it against the current server IP when configured
-12. Renders Xray config templates from this repository
-13. Installs Xray, config files, and a `systemd` unit
-14. Validates the config before starting the service
-15. Enables and starts `xray`
-16. Prints connection details and the final VLESS URI
+9. Initializes `/var/lib/tunnel-1click/reality-targets` when it is missing:
+   - prompts for a custom REALITY target when a TTY is available
+   - uses `addons.mozilla.org:443` when you press Enter
+10. Initializes `/var/lib/tunnel-1click/connect-address` when it is missing:
+   - prompts for a custom domain or IP when a TTY is available
+   - leaves it empty when you press Enter so clients use the detected public IP
+11. Runs `scripts/probe.sh` against the saved `reality-targets`
+12. Selects the best candidate as `REALITY_TARGET` and derives `REALITY_SERVER_NAME`
+13. Reads `connect-address` and validates it against the current server IP when configured
+14. Renders Xray config templates from this repository
+15. Installs Xray, config files, and a `systemd` unit
+16. Validates the config before starting the service
+17. Enables and starts `xray`
+18. Prints connection details and the final VLESS URI
 
-The install is designed to be zero-interaction unless the environment is missing required prerequisites or the install fails.
+The install is designed to use saved host config when present. On the first install it prompts only to seed `reality-targets` and `connect-address`; if no TTY is available it falls back to the default target and detected public IP automatically.
 
 ## Update Behavior
 
@@ -131,8 +140,8 @@ If Xray is already installed, it will:
 3. Read the target version from this repository
 4. Replace the Xray binary and data files if the version changed
 5. Validate the saved REALITY target with `scripts/check.sh`
-6. If the saved target fails, scan `reality-targets` top-to-bottom and switch to the first valid candidate
-7. Re-read `connect-address` and validate it when configured
+6. If the saved target fails, scan the saved `reality-targets` top-to-bottom and switch to the first valid candidate
+7. Re-read the saved `connect-address` and validate it when configured
 8. Re-render the config from the latest templates in this repository
 9. Preserve existing client credentials by default:
    - UUID
@@ -161,6 +170,8 @@ Persistent state:
 
 - `/var/lib/tunnel-1click/install.env`
 - `/var/lib/tunnel-1click/connection.txt`
+- `/var/lib/tunnel-1click/reality-targets`
+- `/var/lib/tunnel-1click/connect-address`
 - `/var/lib/tunnel-1click/rendered/`
 - `/var/lib/tunnel-1click/cache/`
 
@@ -192,7 +203,7 @@ The REALITY fallback is not wired as a direct public port-forward. The generated
 
 ## Target Selection
 
-`reality-targets` contains the pool of upstream camouflage targets.
+`/var/lib/tunnel-1click/reality-targets` contains the pool of upstream camouflage targets used by install and update.
 
 Example:
 
@@ -204,7 +215,8 @@ www.cloudflare.com:443
 
 Install behavior:
 
-- `scripts/probe.sh` checks all repository candidates
+- the first install seeds the file from your prompt or the default `addons.mozilla.org:443`
+- `scripts/probe.sh` checks all saved candidates
 - the best valid candidate becomes `REALITY_TARGET`
 - `REALITY_SERVER_NAME` defaults to the target host
 
@@ -212,7 +224,7 @@ Update behavior:
 
 - validates the saved target first
 - only switches targets when the saved one fails validation
-- falls back to the first valid repository candidate
+- falls back to the first valid saved candidate
 
 You can also run the helper scripts manually:
 
@@ -223,7 +235,7 @@ bash scripts/probe.sh
 
 ## Connect Address
 
-`connect-address` is optional and only affects what address is printed to the client.
+`/var/lib/tunnel-1click/connect-address` is optional and only affects what address is printed to the client.
 
 Examples:
 
@@ -237,7 +249,7 @@ or:
 203.0.113.10
 ```
 
-If the file is absent or commented out, the generated URI uses the detected public IP.
+If the file is absent, empty, or commented out, the generated URI uses the detected public IP.
 
 In the current REALITY mode, `connect-address` does not:
 
