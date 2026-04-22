@@ -30,7 +30,7 @@ jobs:
         run: |
           set -euo pipefail
           mapfile -t archive_paths < <(git ls-files . ':(exclude)tunnel-1click-main.tar.gz')
-          git archive --format=tar.gz --output=tunnel-1click-main.tar.gz HEAD "${archive_paths[@]}"
+          git archive --format=tar.gz --prefix=tunnel-1click-main/ --output=tunnel-1click-main.tar.gz HEAD "${archive_paths[@]}"
 
       - name: Commit distribution archive
         shell: bash
