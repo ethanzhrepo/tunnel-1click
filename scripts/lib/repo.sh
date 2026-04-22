@@ -3,10 +3,6 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 
-t1c_repo_owner() {
-  printf '%s\n' "${T1C_REPO_OWNER:-ethanzhrepo}"
-}
-
 t1c_repo_name() {
   printf '%s\n' "${T1C_REPO_NAME:-tunnel-1click}"
 }
@@ -15,11 +11,16 @@ t1c_repo_ref() {
   printf '%s\n' "${T1C_REPO_REF:-main}"
 }
 
+t1c_repo_site_url() {
+  printf '%s\n' "${T1C_REPO_SITE_URL:-https://0x99.link}"
+}
+
+t1c_repo_snapshot_name() {
+  printf '%s-%s.tar.gz\n' "$(t1c_repo_name)" "$(t1c_repo_ref)"
+}
+
 t1c_repo_snapshot_url() {
-  printf 'https://github.com/%s/%s/archive/refs/heads/%s.tar.gz\n' \
-    "$(t1c_repo_owner)" \
-    "$(t1c_repo_name)" \
-    "$(t1c_repo_ref)"
+  printf '%s/%s\n' "$(t1c_repo_site_url)" "$(t1c_repo_snapshot_name)"
 }
 
 t1c_fetch_repo_snapshot() {

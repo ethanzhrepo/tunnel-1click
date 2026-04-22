@@ -21,7 +21,8 @@ assert_bootstrap_contract() {
   cp "$ROOT_DIR/$script_path" "$copied_script"
   T1C_BOOTSTRAP_SKIP_MAIN=1 . "$copied_script"
 
-  assert_eq "$(t1c_bootstrap_snapshot_url)" "https://github.com/ethanzhrepo/tunnel-1click/archive/refs/heads/main.tar.gz"
+  assert_eq "$(t1c_bootstrap_snapshot_url)" "https://0x99.link/tunnel-1click-main.tar.gz"
+  assert_eq "$(type -t t1c_bootstrap_fallback_snapshot_url || true)" ""
   assert_eq "$(t1c_bootstrap_delegate_path)" "$expected_delegate"
 
   t1c_bootstrap_fetch_snapshot() {
@@ -166,11 +167,17 @@ assert_read_version_file() {
   assert_eq "$(t1c_read_version_file "$version_file")" "v1.2.3"
 }
 
+assert_repo_snapshot_urls() {
+  assert_eq "$(t1c_repo_snapshot_url)" "https://0x99.link/tunnel-1click-main.tar.gz"
+  assert_eq "$(type -t t1c_repo_fallback_snapshot_url || true)" ""
+}
+
 main() {
   assert_bootstrap_contract "install.sh" "scripts/host-install.sh"
   assert_bootstrap_contract "update.sh" "scripts/host-update.sh"
   assert_bootstrap_executable "install.sh" "scripts/host-install.sh"
   assert_bootstrap_executable "update.sh" "scripts/host-update.sh"
+  assert_repo_snapshot_urls
   assert_state_contract
   assert_read_version_file
 }

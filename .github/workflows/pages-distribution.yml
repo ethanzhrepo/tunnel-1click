@@ -1,0 +1,48 @@
+name: Pages Distribution
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - tunnel-1click-main.tar.gz
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-distribution
+  cancel-in-progress: true
+
+jobs:
+  publish-archive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Build repository archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t archive_paths < <(git ls-files . ':(exclude)tunnel-1click-main.tar.gz')
+          git archive --format=tar.gz --output=tunnel-1click-main.tar.gz HEAD "${archive_paths[@]}"
+
+      - name: Commit distribution archive
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$(git status --short -- tunnel-1click-main.tar.gz)" ]]; then
+            exit 0
+          fi
+
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tunnel-1click-main.tar.gz
+          git commit -m "chore: refresh pages archive"
+          git push

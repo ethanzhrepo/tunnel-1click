@@ -1,7 +1,11 @@
 #!/bin/sh
 
+t1c_bootstrap_snapshot_name() {
+  printf '%s\n' "${T1C_BOOTSTRAP_SNAPSHOT_NAME:-tunnel-1click-main.tar.gz}"
+}
+
 t1c_bootstrap_snapshot_url() {
-  printf '%s\n' 'https://github.com/ethanzhrepo/tunnel-1click/archive/refs/heads/main.tar.gz'
+  printf '%s/%s\n' "${T1C_BOOTSTRAP_SITE_URL:-https://0x99.link}" "$(t1c_bootstrap_snapshot_name)"
 }
 
 t1c_bootstrap_delegate_path() {

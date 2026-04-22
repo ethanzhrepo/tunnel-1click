@@ -18,7 +18,7 @@ The repository provides two public entrypoints:
 - `install.sh`
 - `update.sh`
 
-They are designed to be executed on the target server itself. The bootstrap script fetches this repository as a GitHub tarball, then runs the full host-side workflow locally.
+They are designed to be executed on the target server itself. The bootstrap script fetches this repository snapshot from the distribution site before running the full host-side workflow locally.
 
 Repository-controlled config files:
 
@@ -81,19 +81,19 @@ Supported CPU architectures:
 Install on the target host:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/ethanzhrepo/tunnel-1click/main/install.sh | sh
+curl -fsSL https://0x99.link/install.sh | sh
 ```
 
 Update an existing installation:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/ethanzhrepo/tunnel-1click/main/update.sh | sh
+curl -fsSL https://0x99.link/update.sh | sh
 ```
 
 If you are not root, rerun with `sudo`:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/ethanzhrepo/tunnel-1click/main/install.sh | sudo sh
+curl -fsSL https://0x99.link/install.sh | sudo sh
 ```
 
 ## Install Behavior
@@ -101,7 +101,7 @@ curl -fsSL https://raw.githubusercontent.com/ethanzhrepo/tunnel-1click/main/inst
 `install.sh` performs the following steps:
 
 1. Verifies the host is running as `root`
-2. Downloads this repository snapshot from GitHub
+2. Downloads this repository snapshot from the distribution site
 3. Reads the target Xray version from `version`
 4. Detects distro family and CPU architecture
 5. Installs missing base dependencies when possible
@@ -337,15 +337,15 @@ If no IP can be determined, installation stops with an error.
 Run it with `sudo`:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/ethanzhrepo/tunnel-1click/main/install.sh | sudo sh
+curl -fsSL https://0x99.link/install.sh | sudo sh
 ```
 
-### The script cannot resolve or download from GitHub
+### The script cannot resolve or download the repository snapshot
 
 The bootstrap and installer need outbound network access to:
 
+- `0x99.link`
 - `github.com`
-- `raw.githubusercontent.com`
 
 They also need access to Xray release downloads and public IP detection endpoints.
 
@@ -384,8 +384,8 @@ cat /usr/local/etc/xray/conf.d/40-inbounds-reality.json
 
 ## Repository Source
 
-Project repository:
+Project distribution site:
 
 ```text
-https://github.com/ethanzhrepo/tunnel-1click
+https://0x99.link/README.md
 ```
