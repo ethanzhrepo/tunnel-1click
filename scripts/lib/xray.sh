@@ -45,11 +45,11 @@ t1c_download_xray_release() {
 }
 
 t1c_extract_private_key() {
-  awk -F': ' '/^Private key:/ {print $2; exit}'
+  sed -nE 's/^(Private key|PrivateKey):[[:space:]]*//p' | head -n1
 }
 
 t1c_extract_public_key() {
-  awk -F': ' '/^Public key:/ {print $2; exit}'
+  sed -nE 's/^(Public key|PublicKey|Password \(PublicKey\)|Password):[[:space:]]*//p' | head -n1
 }
 
 t1c_generate_uuid() {
@@ -64,6 +64,10 @@ t1c_generate_reality_keypair() {
   output="$("$xray_bin" x25519)"
   private_key="$(printf '%s\n' "$output" | t1c_extract_private_key)"
   public_key="$(printf '%s\n' "$output" | t1c_extract_public_key)"
+  [[ -n "$private_key" && -n "$public_key" ]] || {
+    printf '%s\n' "$output" >&2
+    t1c_die 'failed to parse xray x25519 output'
+  }
   printf '%s,%s\n' "$private_key" "$public_key"
 }
 
