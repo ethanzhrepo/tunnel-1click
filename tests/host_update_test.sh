@@ -46,6 +46,11 @@ addons.mozilla.org:443
 www.apple.com:443
 EOF
   printf 'edge.example.com\n' >"$snapshot_dir/connect-address"
+  cat >"$state_dir/reality-targets" <<'EOF'
+www.apple.com:443
+addons.mozilla.org:443
+EOF
+  printf 'custom.example.com\n' >"$state_dir/connect-address"
 
   cat >"$package_dir/xray" <<'EOF'
 #!/usr/bin/env bash
@@ -90,7 +95,7 @@ EOF
 
   T1C_SKIP_ROOT_CHECK=1 \
   T1C_SKIP_SYSTEMD=1 \
-  T1C_CHECK_FIXTURES=$'old.example.com:443|fail|dns_lookup_failed\naddons.mozilla.org:443|ok|83\nwww.apple.com:443|ok|95' \
+  T1C_CHECK_FIXTURES=$'old.example.com:443|fail|dns_lookup_failed\naddons.mozilla.org:443|ok|83\nwww.apple.com:443|ok|55' \
   T1C_DIG_OUTPUT='203.0.113.44' \
   T1C_SNAPSHOT_DIR="$snapshot_dir" \
   T1C_XRAY_PACKAGE_DIR="$package_dir" \
@@ -106,14 +111,14 @@ EOF
   assert_eq "$(awk -F= '/^UUID=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
   assert_eq "$(awk -F= '/^XRAY_VERSION=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "v26.3.27"
   assert_eq "$(awk -F= '/^SERVER_IP=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "203.0.113.44"
-  assert_eq "$(awk -F= '/^REALITY_TARGET=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "addons.mozilla.org:443"
-  assert_eq "$(awk -F= '/^REALITY_SERVER_NAME=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "addons.mozilla.org"
-  assert_eq "$(awk -F= '/^CONNECT_ADDRESS=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "edge.example.com"
-  assert_match "$(cat "$state_dir/connection.txt")" 'edge\.example\.com'
+  assert_eq "$(awk -F= '/^REALITY_TARGET=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "www.apple.com:443"
+  assert_eq "$(awk -F= '/^REALITY_SERVER_NAME=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "www.apple.com"
+  assert_eq "$(awk -F= '/^CONNECT_ADDRESS=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$state_dir/install.env")" "custom.example.com"
+  assert_match "$(cat "$state_dir/connection.txt")" 'custom\.example\.com'
   assert_match "$(cat "$state_dir/connection.txt")" 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
-  assert_match "$(cat "$state_dir/connection.txt")" 'Server Address: edge\.example\.com'
+  assert_match "$(cat "$state_dir/connection.txt")" 'Server Address: custom\.example\.com'
   assert_match "$(cat "$conf_dir/40-inbounds-reality.json")" '"target":[[:space:]]*"127.0.0.1:4431"'
-  assert_match "$(cat "$conf_dir/30-routing.json")" '"domain":[[:space:]]*\[[[:space:]]*"addons.mozilla.org"[[:space:]]*\]'
+  assert_match "$(cat "$conf_dir/30-routing.json")" '"domain":[[:space:]]*\[[[:space:]]*"www.apple.com"[[:space:]]*\]'
 }
 
 main "$@"

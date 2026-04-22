@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/common.sh"
+source "$SCRIPT_DIR/lib/config.sh"
 source "$SCRIPT_DIR/lib/repo.sh"
 source "$SCRIPT_DIR/lib/state.sh"
 source "$SCRIPT_DIR/lib/targets.sh"
@@ -52,7 +53,7 @@ t1c_install_ensure_dependencies() {
 }
 
 t1c_install_main() {
-  local snapshot_dir package_dir render_dir version arch uuid keypair private_key public_key short_id server_ip probe_output repo_connect_address resolved_connect_address connect_address_source
+  local snapshot_dir package_dir render_dir version arch uuid keypair private_key public_key short_id server_ip probe_output targets_file connect_file repo_connect_address resolved_connect_address connect_address_source
 
   t1c_require_root
   t1c_install_ensure_dependencies
@@ -84,12 +85,15 @@ t1c_install_main() {
   export REALITY_PRIVATE_KEY="$private_key"
   export REALITY_PUBLIC_KEY="$public_key"
   export REALITY_SHORT_ID="$short_id"
-  probe_output="$(bash "$SCRIPT_DIR/probe.sh" "$snapshot_dir/reality-targets")"
+  t1c_install_initialize_config "$server_ip"
+  targets_file="$(t1c_resolve_targets_file "$snapshot_dir")"
+  connect_file="$(t1c_resolve_connect_address_file "$snapshot_dir")"
+  probe_output="$(bash "$SCRIPT_DIR/probe.sh" "$targets_file")"
   export REALITY_TARGET="$(awk -F= '/^BEST_TARGET=/{print $2}' <<<"$probe_output")"
   [[ -n "$REALITY_TARGET" ]] || t1c_die 'no valid REALITY target candidates'
   export REALITY_SERVER_NAME="$(t1c_target_host "$REALITY_TARGET")"
   export TLS_FINGERPRINT="chrome"
-  repo_connect_address="$(t1c_read_connect_address "$snapshot_dir/connect-address")"
+  repo_connect_address="$(t1c_read_connect_address "$connect_file")"
   if [[ -n "$repo_connect_address" ]]; then
     t1c_validate_connect_address "$repo_connect_address" "$server_ip" || t1c_die 'connect-address does not resolve to this server'
     resolved_connect_address="$repo_connect_address"

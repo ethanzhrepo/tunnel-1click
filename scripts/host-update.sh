@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/common.sh"
+source "$SCRIPT_DIR/lib/config.sh"
 source "$SCRIPT_DIR/lib/repo.sh"
 source "$SCRIPT_DIR/lib/state.sh"
 source "$SCRIPT_DIR/lib/targets.sh"
@@ -11,7 +12,7 @@ source "$SCRIPT_DIR/lib/render.sh"
 source "$SCRIPT_DIR/lib/runtime.sh"
 
 t1c_update_main() {
-  local snapshot_dir package_dir render_dir desired_version current_version current_arch server_ip repo_connect_address resolved_connect_address connect_address_source candidate replacement_target=""
+  local snapshot_dir package_dir render_dir desired_version current_version current_arch server_ip targets_file connect_file repo_connect_address resolved_connect_address connect_address_source candidate replacement_target=""
 
   t1c_require_root
 
@@ -26,6 +27,8 @@ t1c_update_main() {
 
   t1c_load_state_file "$(t1c_state_file)"
   server_ip="$(t1c_detect_public_ip)"
+  targets_file="$(t1c_resolve_targets_file "$snapshot_dir")"
+  connect_file="$(t1c_resolve_connect_address_file "$snapshot_dir")"
   desired_version="$(t1c_read_version_file "$snapshot_dir/version")"
   current_version="$("$(t1c_bin_dir)/xray" version | awk 'NR==1 {print $2}')"
   current_arch="$(t1c_detect_arch)"
@@ -52,12 +55,12 @@ t1c_update_main() {
         REALITY_SERVER_NAME="$(t1c_target_host "$candidate")"
         break
       fi
-    done < <(t1c_read_target_candidates "$snapshot_dir/reality-targets")
+    done < <(t1c_read_target_candidates "$targets_file")
     [[ -n "$replacement_target" ]] || t1c_die 'no valid REALITY target candidates'
   fi
 
   SERVER_IP="$server_ip"
-  repo_connect_address="$(t1c_read_connect_address "$snapshot_dir/connect-address")"
+  repo_connect_address="$(t1c_read_connect_address "$connect_file")"
   if [[ -n "$repo_connect_address" ]]; then
     t1c_validate_connect_address "$repo_connect_address" "$server_ip" || t1c_die 'connect-address does not resolve to this server'
     resolved_connect_address="$repo_connect_address"
