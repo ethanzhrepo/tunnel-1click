@@ -263,6 +263,10 @@ t1c_emit_target_report() {
   if t1c_target_dns_ok "$host"; then dns_ok=1; else dns_ok=0; reason="${reason:-dns_lookup_failed}"; fi
   if t1c_target_tcp_ok "$host" "$port"; then tcp_ok=1; else tcp_ok=0; reason="${reason:-tcp_connect_failed}"; fi
   if t1c_target_tls_ok "$host" "$port"; then tls_ok=1; else tls_ok=0; reason="${reason:-tls_handshake_failed}"; fi
+  if [[ "$tls_ok" == "1" ]]; then
+    tcp_ok=1
+    [[ "$reason" == "tcp_connect_failed" ]] && reason=""
+  fi
   tls_version="$(t1c_target_tls_version "$host" "$port" || true)"
   if [[ "$tls_version" == "TLSv1.3" ]]; then
     :
@@ -296,7 +300,7 @@ t1c_emit_target_report() {
 
 t1c_probe_latency_for_target() {
   local target="$1"
-  local line fixture_target fixture_status fixture_latency output latency
+  local line fixture_target fixture_status fixture_latency output latency reason
 
   if [[ -n "${T1C_PROBE_FIXTURES:-}" ]]; then
     while IFS= read -r line || [[ -n "$line" ]]; do
@@ -306,27 +310,43 @@ t1c_probe_latency_for_target() {
       fixture_status="${fixture_status%%|*}"
       fixture_latency="${line##*|}"
       [[ "$fixture_target" == "$target" ]] || continue
-      [[ "$fixture_status" == "ok" ]] || return 1
-      printf '%s\n' "$fixture_latency"
-      return 0
+      if [[ "$fixture_status" == "ok" ]]; then
+        printf 'LATENCY_MS=%s\n' "$fixture_latency"
+        return 0
+      fi
+
+      printf 'REASON=%s\n' "$fixture_latency"
+      return 1
     done <<<"$T1C_PROBE_FIXTURES"
+
+    printf 'REASON=target_check_failed\n'
     return 1
   fi
 
-  output="$(bash "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/check.sh" "$target" 2>/dev/null)" || return 1
-  latency="$(awk -F= '/^LATENCY_MS=/{print $2}' <<<"$output")"
-  [[ -n "$latency" ]] || return 1
-  printf '%s\n' "$latency"
+  if output="$(bash "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/check.sh" "$target" 2>/dev/null)"; then
+    latency="$(awk -F= '/^LATENCY_MS=/{print $2}' <<<"$output")"
+    [[ -n "$latency" ]] || {
+      printf 'REASON=missing_latency\n'
+      return 1
+    }
+    printf 'LATENCY_MS=%s\n' "$latency"
+    return 0
+  fi
+
+  reason="$(awk -F= '/^REASON=/{print $2; exit}' <<<"$output")"
+  printf 'REASON=%s\n' "${reason:-target_check_failed}"
+  return 1
 }
 
 t1c_probe_best_target() {
   local targets_file="$1"
-  local line latency best_target="" best_latency="" ok_count=0
+  local line result latency reason best_target="" best_latency="" ok_count=0
   local summaries=()
 
   while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" ]] && continue
-    if latency="$(t1c_probe_latency_for_target "$line")"; then
+    if result="$(t1c_probe_latency_for_target "$line")"; then
+      latency="$(awk -F= '/^LATENCY_MS=/{print $2; exit}' <<<"$result")"
       summaries+=("OK ${line} score=$((100000 - latency)) latency=${latency}")
       ok_count=$((ok_count + 1))
       if [[ -z "$best_latency" || "$latency" -lt "$best_latency" ]]; then
@@ -334,11 +354,15 @@ t1c_probe_best_target() {
         best_latency="$latency"
       fi
     else
-      summaries+=("FAIL ${line} reason=target_check_failed")
+      reason="$(awk -F= '/^REASON=/{print $2; exit}' <<<"$result")"
+      summaries+=("FAIL ${line} reason=${reason:-target_check_failed}")
     fi
   done < <(t1c_read_target_candidates "$targets_file")
 
-  [[ -n "$best_target" ]] || return 1
+  if [[ -z "$best_target" ]]; then
+    printf '%s\n' "${summaries[@]}" >&2
+    return 1
+  fi
 
   printf 'BEST_TARGET=%s\n' "$best_target"
   printf 'BEST_SERVER_NAME=%s\n' "$(t1c_target_host "$best_target")"
