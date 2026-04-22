@@ -42,6 +42,7 @@ main() {
   assert_match "$(cat "$output_dir/server/30-routing.json")" '"inboundTag":[[:space:]]*\[[[:space:]]*"dokodemo-in"[[:space:]]*\]'
   assert_match "$(cat "$output_dir/server/30-routing.json")" '"domain":[[:space:]]*\[[[:space:]]*"addons.mozilla.org"[[:space:]]*\]'
   assert_match "$(cat "$output_dir/server/30-routing.json")" '"outboundTag":[[:space:]]*"block"'
+  assert_not_match "$(cat "$output_dir/server/30-routing.json")" 'geoip:reserved'
   assert_match "$(cat "$output_dir/connection.txt")" 'Server Address: edge\.example\.com'
   assert_match "$(cat "$output_dir/connection.txt")" 'URI: vless://11111111-1111-1111-1111-111111111111@edge\.example\.com:443'
 }

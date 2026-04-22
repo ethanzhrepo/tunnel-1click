@@ -22,8 +22,7 @@
       {
         "type": "field",
         "ip": [
-          "geoip:private",
-          "geoip:reserved"
+          "geoip:private"
         ],
         "outboundTag": "block"
       }

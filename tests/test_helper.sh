@@ -18,6 +18,12 @@ assert_match() {
   [[ "$actual" =~ $pattern ]] || fail "expected [$actual] to match [$pattern]"
 }
 
+assert_not_match() {
+  local actual="$1"
+  local pattern="$2"
+  [[ ! "$actual" =~ $pattern ]] || fail "expected [$actual] not to match [$pattern]"
+}
+
 make_temp_dir() {
   mktemp -d "${TMPDIR:-/tmp}/t1c-test.XXXXXX"
 }
