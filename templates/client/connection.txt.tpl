@@ -8,4 +8,10 @@ Public Key: __REALITY_PUBLIC_KEY__
 Short ID: __REALITY_SHORT_ID__
 Fingerprint: __TLS_FINGERPRINT__
 URI: vless://__UUID__@__CONNECT_ADDRESS__:__XRAY_PORT__?encryption=none&flow=xtls-rprx-vision&security=reality&sni=__REALITY_SERVER_NAME__&fp=__TLS_FINGERPRINT__&pbk=__REALITY_PUBLIC_KEY__&sid=__REALITY_SHORT_ID__&type=tcp&headerType=none#xray-reality-__CONNECT_ADDRESS__
+Start: systemctl start xray
+Stop: systemctl stop xray
+Restart: systemctl restart xray
+Status: systemctl status xray --no-pager
+Journal: journalctl -u xray -n 50 --no-pager
+Error Log: tail -n 50 /var/log/xray/error.log
 Save this information before closing the terminal.

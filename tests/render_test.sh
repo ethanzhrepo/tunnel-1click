@@ -45,6 +45,12 @@ main() {
   assert_not_match "$(cat "$output_dir/server/30-routing.json")" 'geoip:reserved'
   assert_match "$(cat "$output_dir/connection.txt")" 'Server Address: edge\.example\.com'
   assert_match "$(cat "$output_dir/connection.txt")" 'URI: vless://11111111-1111-1111-1111-111111111111@edge\.example\.com:443'
+  assert_match "$(cat "$output_dir/connection.txt")" 'Start: systemctl start xray'
+  assert_match "$(cat "$output_dir/connection.txt")" 'Stop: systemctl stop xray'
+  assert_match "$(cat "$output_dir/connection.txt")" 'Restart: systemctl restart xray'
+  assert_match "$(cat "$output_dir/connection.txt")" 'Status: systemctl status xray --no-pager'
+  assert_match "$(cat "$output_dir/connection.txt")" 'Journal: journalctl -u xray -n 50 --no-pager'
+  assert_match "$(cat "$output_dir/connection.txt")" 'Error Log: tail -n 50 /var/log/xray/error.log'
 }
 
 main "$@"

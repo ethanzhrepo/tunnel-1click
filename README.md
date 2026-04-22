@@ -272,6 +272,12 @@ At the end of a successful install or update, the script prints:
 - Short ID
 - Fingerprint
 - Full VLESS URI
+- `systemctl start xray`
+- `systemctl stop xray`
+- `systemctl restart xray`
+- `systemctl status xray --no-pager`
+- `journalctl -u xray -n 50 --no-pager`
+- `tail -n 50 /var/log/xray/error.log`
 
 The same content is also saved to:
 
@@ -283,6 +289,24 @@ The generated URI format is:
 
 ```text
 vless://UUID@SERVER_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=SERVER_NAME&fp=chrome&pbk=PUBLIC_KEY&sid=SHORT_ID&type=tcp&headerType=none#xray-reality-SERVER_ADDRESS
+```
+
+## Service Management
+
+Use these commands after install or update:
+
+```sh
+systemctl start xray
+systemctl stop xray
+systemctl restart xray
+```
+
+For status and logs:
+
+```sh
+systemctl status xray --no-pager
+journalctl -u xray -n 50 --no-pager
+tail -n 50 /var/log/xray/error.log
 ```
 
 ## Public IP Detection
@@ -332,6 +356,7 @@ Check:
 ```sh
 systemctl status xray --no-pager
 journalctl -u xray -n 50 --no-pager
+tail -n 50 /var/log/xray/error.log
 ```
 
 Also validate the config directly:
