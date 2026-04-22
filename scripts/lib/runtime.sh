@@ -40,9 +40,21 @@ t1c_systemctl() {
   systemctl "$@"
 }
 
+t1c_systemctl_is_active() {
+  if [[ "${T1C_SKIP_SYSTEMD:-0}" == "1" ]]; then
+    return 0
+  fi
+  systemctl is-active --quiet xray
+}
+
 t1c_enable_and_start_service() {
   t1c_systemctl daemon-reload
-  t1c_systemctl enable --now xray
+  t1c_systemctl enable xray
+  if t1c_systemctl_is_active; then
+    t1c_systemctl restart xray
+  else
+    t1c_systemctl start xray
+  fi
   t1c_systemctl is-active xray
 }
 
