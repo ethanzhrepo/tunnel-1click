@@ -71,7 +71,8 @@ t1c_update_main() {
   fi
   CONNECT_ADDRESS="$resolved_connect_address"
   CONNECT_ADDRESS_SOURCE="$connect_address_source"
-  export XRAY_VERSION XRAY_PORT SERVER_IP UUID REALITY_PRIVATE_KEY REALITY_PUBLIC_KEY REALITY_SHORT_ID REALITY_TARGET REALITY_SERVER_NAME TLS_FINGERPRINT CONNECT_ADDRESS CONNECT_ADDRESS_SOURCE
+  CLIENT_JSON_PATH="$(t1c_client_config_file)"
+  export XRAY_VERSION XRAY_PORT SERVER_IP UUID REALITY_PRIVATE_KEY REALITY_PUBLIC_KEY REALITY_SHORT_ID REALITY_TARGET REALITY_SERVER_NAME TLS_FINGERPRINT CONNECT_ADDRESS CONNECT_ADDRESS_SOURCE CLIENT_JSON_PATH
 
   render_dir="$(mktemp -d "${TMPDIR:-/tmp}/t1c-render.XXXXXX")"
   t1c_render_snapshot "$snapshot_dir" "$render_dir"
@@ -79,6 +80,7 @@ t1c_update_main() {
   install -m 0644 "$render_dir/server/"*.json "$(t1c_conf_dir)/"
   install -m 0644 "$render_dir/xray.service" "$(t1c_systemd_dir)/xray.service"
   install -m 0644 "$render_dir/connection.txt" "$(t1c_connection_file)"
+  install -m 0644 "$render_dir/xray-client.json" "$(t1c_client_config_file)"
   cp -R "$render_dir/." "$(t1c_rendered_dir)/"
 
   t1c_write_state_file "$(t1c_state_file)" \

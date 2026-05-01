@@ -86,6 +86,13 @@ EOF
   assert_eq "$(wc -c <"$state_dir/connect-address" | tr -d '[:space:]')" "0"
   assert_match "$(cat "$state_dir/connection.txt")" 'public-value'
   assert_match "$(cat "$state_dir/connection.txt")" 'Server Address: 203\.0\.113\.25'
+  [[ -f "$state_dir/xray-client.json" ]] || fail "expected $state_dir/xray-client.json to exist"
+  assert_match "$(cat "$state_dir/xray-client.json")" '"address":[[:space:]]*"203.0.113.25"'
+  assert_match "$(cat "$state_dir/xray-client.json")" '"https\+local://1\.1\.1\.1/dns-query"'
+  assert_match "$(cat "$state_dir/xray-client.json")" '"mux":[[:space:]]*\{'
+  assert_match "$(cat "$state_dir/xray-client.json")" '"enabled":[[:space:]]*false'
+  [[ "$(cat "$state_dir/connection.txt")" == *"Client JSON: $state_dir/xray-client.json"* ]] || fail "expected connection.txt to include client JSON path"
+  [[ "$(cat "$state_dir/connection.txt")" == *"Download Client JSON: scp root@203.0.113.25:$state_dir/xray-client.json /tmp/xray-client-203.0.113.25.json"* ]] || fail "expected connection.txt to include client JSON scp command"
   assert_match "$(cat "$conf_dir/40-inbounds-reality.json")" '"tag":[[:space:]]*"dokodemo-in"'
   assert_match "$(cat "$conf_dir/40-inbounds-reality.json")" '"target":[[:space:]]*"127.0.0.1:4431"'
   assert_match "$(cat "$conf_dir/30-routing.json")" '"domain":[[:space:]]*\[[[:space:]]*"addons.mozilla.org"[[:space:]]*\]'

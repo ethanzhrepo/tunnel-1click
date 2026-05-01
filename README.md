@@ -170,6 +170,7 @@ Persistent state:
 
 - `/var/lib/tunnel-1click/install.env`
 - `/var/lib/tunnel-1click/connection.txt`
+- `/var/lib/tunnel-1click/xray-client.json`
 - `/var/lib/tunnel-1click/reality-targets`
 - `/var/lib/tunnel-1click/connect-address`
 - `/var/lib/tunnel-1click/rendered/`
@@ -278,6 +279,8 @@ At the end of a successful install or update, the script prints:
 - `systemctl status xray --no-pager`
 - `journalctl -u xray -n 50 --no-pager`
 - `tail -n 50 /var/log/xray/error.log`
+- saved client JSON path
+- `scp` command for downloading the client JSON to `/tmp`
 
 The same content is also saved to:
 
@@ -290,6 +293,14 @@ The generated URI format is:
 ```text
 vless://UUID@SERVER_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=SERVER_NAME&fp=chrome&pbk=PUBLIC_KEY&sid=SHORT_ID&type=tcp&headerType=none#xray-reality-SERVER_ADDRESS
 ```
+
+The installer also saves a complete Xray client config to:
+
+```text
+/var/lib/tunnel-1click/xray-client.json
+```
+
+The client config includes local SOCKS and HTTP inbounds, REALITY outbound settings, DNS over HTTPS local-mode resolvers, disabled mux, TCP keepalive, and longer connection idle policy values. The printed `scp` command downloads it to `/tmp/xray-client-SERVER_ADDRESS.json`.
 
 ## Service Management
 
@@ -371,6 +382,14 @@ Read:
 
 ```sh
 cat /var/lib/tunnel-1click/connection.txt
+```
+
+### I want to download the generated client JSON
+
+Use the `Download Client JSON` command printed by install or update. It has this shape:
+
+```sh
+scp root@SERVER_ADDRESS:/var/lib/tunnel-1click/xray-client.json /tmp/xray-client-SERVER_ADDRESS.json
 ```
 
 ### I want to inspect the generated config later

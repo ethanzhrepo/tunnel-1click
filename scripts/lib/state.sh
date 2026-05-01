@@ -17,6 +17,10 @@ t1c_connection_file() {
   printf '%s\n' "$(t1c_state_dir)/connection.txt"
 }
 
+t1c_client_config_file() {
+  printf '%s\n' "$(t1c_state_dir)/xray-client.json"
+}
+
 t1c_rendered_dir() {
   printf '%s\n' "$(t1c_state_dir)/rendered"
 }

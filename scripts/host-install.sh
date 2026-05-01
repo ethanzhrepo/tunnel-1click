@@ -104,6 +104,7 @@ t1c_install_main() {
   fi
   export CONNECT_ADDRESS="$resolved_connect_address"
   export CONNECT_ADDRESS_SOURCE="$connect_address_source"
+  export CLIENT_JSON_PATH="$(t1c_client_config_file)"
 
   render_dir="$(mktemp -d "${TMPDIR:-/tmp}/t1c-render.XXXXXX")"
   t1c_render_snapshot "$snapshot_dir" "$render_dir"

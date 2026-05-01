@@ -26,6 +26,7 @@ t1c_install_runtime_files() {
   install -m 0644 "$render_dir/server/"*.json "$(t1c_conf_dir)/"
   install -m 0644 "$render_dir/xray.service" "$(t1c_systemd_dir)/xray.service"
   install -m 0644 "$render_dir/connection.txt" "$(t1c_connection_file)"
+  install -m 0644 "$render_dir/xray-client.json" "$(t1c_client_config_file)"
   cp -R "$render_dir/." "$(t1c_rendered_dir)/"
 }
 

@@ -17,6 +17,21 @@ t1c_reality_fallback_port() {
   printf '%s' "${REALITY_FALLBACK_PORT:-4431}"
 }
 
+t1c_client_json_path() {
+  printf '%s' "${CLIENT_JSON_PATH:-/var/lib/tunnel-1click/xray-client.json}"
+}
+
+t1c_client_json_local_path() {
+  local safe_address
+
+  safe_address="$(printf '%s' "$CONNECT_ADDRESS" | sed 's/[^A-Za-z0-9._-]/_/g')"
+  printf '/tmp/xray-client-%s.json' "$safe_address"
+}
+
+t1c_client_json_scp_command() {
+  printf 'scp root@%s:%s %s' "$CONNECT_ADDRESS" "$(t1c_client_json_path)" "$(t1c_client_json_local_path)"
+}
+
 t1c_render_one() {
   local template_file="$1"
   local output_file="$2"
@@ -37,6 +52,9 @@ t1c_render_one() {
     -e "s|__REALITY_SERVER_NAME__|$(t1c_escape_sed_replacement "${REALITY_SERVER_NAME}")|g" \
     -e "s|__REALITY_FALLBACK_PORT__|$(t1c_escape_sed_replacement "$(t1c_reality_fallback_port)")|g" \
     -e "s|__TLS_FINGERPRINT__|$(t1c_escape_sed_replacement "${TLS_FINGERPRINT}")|g" \
+    -e "s|__CLIENT_JSON_PATH__|$(t1c_escape_sed_replacement "$(t1c_client_json_path)")|g" \
+    -e "s|__CLIENT_JSON_LOCAL_PATH__|$(t1c_escape_sed_replacement "$(t1c_client_json_local_path)")|g" \
+    -e "s|__CLIENT_JSON_SCP_COMMAND__|$(t1c_escape_sed_replacement "$(t1c_client_json_scp_command)")|g" \
     "$template_file" >"$output_file"
 }
 
@@ -54,4 +72,5 @@ t1c_render_snapshot() {
   t1c_render_one "$template_root/server/60-policy.json.tpl" "$output_dir/server/60-policy.json"
   t1c_render_one "$template_root/systemd/xray.service.tpl" "$output_dir/xray.service"
   t1c_render_one "$template_root/client/connection.txt.tpl" "$output_dir/connection.txt"
+  t1c_render_one "$template_root/client/xray-client.json.tpl" "$output_dir/xray-client.json"
 }

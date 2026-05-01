@@ -117,6 +117,12 @@ EOF
   assert_match "$(cat "$state_dir/connection.txt")" 'custom\.example\.com'
   assert_match "$(cat "$state_dir/connection.txt")" 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
   assert_match "$(cat "$state_dir/connection.txt")" 'Server Address: custom\.example\.com'
+  [[ -f "$state_dir/xray-client.json" ]] || fail "expected $state_dir/xray-client.json to exist"
+  assert_match "$(cat "$state_dir/xray-client.json")" '"address":[[:space:]]*"custom.example.com"'
+  assert_match "$(cat "$state_dir/xray-client.json")" '"serverName":[[:space:]]*"www.apple.com"'
+  assert_match "$(cat "$state_dir/xray-client.json")" '"https\+local://8\.8\.8\.8/dns-query"'
+  [[ "$(cat "$state_dir/connection.txt")" == *"Client JSON: $state_dir/xray-client.json"* ]] || fail "expected connection.txt to include client JSON path"
+  [[ "$(cat "$state_dir/connection.txt")" == *"Download Client JSON: scp root@custom.example.com:$state_dir/xray-client.json /tmp/xray-client-custom.example.com.json"* ]] || fail "expected connection.txt to include client JSON scp command"
   assert_match "$(cat "$conf_dir/40-inbounds-reality.json")" '"target":[[:space:]]*"127.0.0.1:4431"'
   assert_match "$(cat "$conf_dir/30-routing.json")" '"domain":[[:space:]]*\[[[:space:]]*"www.apple.com"[[:space:]]*\]'
 }

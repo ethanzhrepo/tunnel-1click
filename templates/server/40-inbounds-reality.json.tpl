@@ -35,6 +35,10 @@
       "streamSettings": {
         "network": "tcp",
         "security": "reality",
+        "sockopt": {
+          "tcpKeepAliveIdle": 30,
+          "tcpKeepAliveInterval": 15
+        },
         "realitySettings": {
           "target": "127.0.0.1:__REALITY_FALLBACK_PORT__",
           "serverNames": [
