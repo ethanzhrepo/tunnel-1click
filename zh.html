@@ -1,26 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hans">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Deploy a self-hosted Xray REALITY tunnel on your own VPS with one command. Includes secure VPS hosting recommendations, install/update commands, and operator docs.">
-  <meta name="keywords" content="Xray REALITY, self-hosted tunnel, VPS security, private proxy, one command install">
+  <meta name="description" content="用一条命令在自己的 VPS 上部署自建 Xray REALITY 隧道。包含安全自建 VPS 推荐、安装/更新命令和运维文档。">
+  <meta name="keywords" content="Xray REALITY, 自建隧道, VPS 安全, 私有代理, 一键部署">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://0x99.link/">
+  <link rel="canonical" href="https://0x99.link/zh.html">
   <link rel="alternate" hreflang="en" href="https://0x99.link/">
   <link rel="alternate" hreflang="zh-Hans" href="https://0x99.link/zh.html">
   <link rel="alternate" hreflang="x-default" href="https://0x99.link/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="tunnel-1click">
-  <meta property="og:title" content="tunnel-1click | Self-Hosted Xray REALITY VPS Setup">
-  <meta property="og:description" content="Deploy a self-hosted Xray REALITY tunnel on your own VPS with one command, then keep the keys, config, and runtime under your control.">
-  <meta property="og:url" content="https://0x99.link/">
-  <meta property="og:locale" content="en_US">
-  <meta property="og:locale:alternate" content="zh_CN">
+  <meta property="og:title" content="tunnel-1click | 自建 Xray REALITY VPS 一键部署">
+  <meta property="og:description" content="用一条命令在自己的 VPS 上部署自建 Xray REALITY 隧道，并把密钥、配置和运行时留在自己手里。">
+  <meta property="og:url" content="https://0x99.link/zh.html">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="tunnel-1click | Self-Hosted Xray REALITY VPS Setup">
-  <meta name="twitter:description" content="One-command self-hosted Xray REALITY deployment with VPS recommendations and operator docs.">
-  <title>tunnel-1click | Self-Hosted Xray REALITY VPS Setup</title>
+  <meta name="twitter:title" content="tunnel-1click | 自建 Xray REALITY VPS 一键部署">
+  <meta name="twitter:description" content="一条命令完成自建 Xray REALITY 部署，包含 VPS 推荐和运维文档。">
+  <title>tunnel-1click | 自建 Xray REALITY VPS 一键部署</title>
   <style>
     :root {
       --paper: #f4ecdd;
@@ -50,7 +50,7 @@
     body {
       margin: 0;
       color: var(--paper-ink);
-      font-family: "Palatino Linotype", "Book Antiqua", "Iowan Old Style", Georgia, serif;
+      font-family: "Noto Serif SC", "Songti SC", "PingFang SC", "Microsoft YaHei", Georgia, serif;
       background:
         radial-gradient(circle at top, rgba(255, 255, 255, 0.42), transparent 30%),
         linear-gradient(180deg, #f8f2e6 0%, var(--paper) 45%, #ece1ce 100%);
@@ -510,13 +510,13 @@
     <div class="topbar">
       <div class="brand">
         <span class="brand-mark" aria-hidden="true"></span>
-        <span>Practical Xray REALITY deployment</span>
+        <span>实用的 Xray REALITY 自建部署</span>
       </div>
       <div class="top-links">
-        <a href="#vps">VPS</a>
-        <a href="#quick-use">Quick Use</a>
-        <a href="#docs">Docs</a>
-        <a href="zh.html" hreflang="zh-Hans" lang="zh-Hans">中文</a>
+        <a href="#vps">VPS 推荐</a>
+        <a href="#quick-use">快速使用</a>
+        <a href="#docs">文档</a>
+        <a href="index.html" hreflang="en" lang="en">English</a>
       </div>
     </div>
 
@@ -524,15 +524,15 @@
       <div class="hero-shell">
         <div class="hero-copy">
           <p class="eyebrow">tunnel-1click</p>
-          <h1>One command. REALITY host online.</h1>
+          <h1>一条命令，REALITY 主机上线。</h1>
           <p>
-            Deploy a practical Xray REALITY server with one install command, keep the runtime
-            readable, and come back later to the exact service and log commands you need.
+            用一条安装命令部署实用的 Xray REALITY 服务器，保留清晰的运行结构，
+            之后需要服务控制和日志排查时也能马上找到命令。
           </p>
           <div class="command-block">
             <div class="command-head">
-              <span class="command-label">Install</span>
-              <button class="copy-button" type="button" data-copy-target="install-command" aria-label="Copy install command">
+              <span class="command-label">安装</span>
+              <button class="copy-button" type="button" data-copy-target="install-command" aria-label="复制安装命令">
                 <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
                 </svg>
@@ -544,28 +544,27 @@
             <pre class="command-text" id="install-command">curl -fsSL https://0x99.link/install.sh | sh</pre>
           </div>
           <div class="hero-actions">
-            <a class="button-link" href="install.sh">Open install.sh</a>
-            <a class="button-link" href="update.sh">Open update.sh</a>
-            <a class="button-link" href="README.md">Read README</a>
+            <a class="button-link" href="install.sh">打开 install.sh</a>
+            <a class="button-link" href="update.sh">打开 update.sh</a>
+            <a class="button-link" href="README.md">阅读 README</a>
           </div>
         </div>
 
-        <aside class="hero-side" aria-label="Installer summary">
+        <aside class="hero-side" aria-label="安装器摘要">
           <p class="side-note">
-            The page stays focused on the first command, but it still exposes the operator
-            workflow you actually use after install.
+            页面聚焦第一条安装命令，同时把安装后真正会用到的运维路径放在手边。
           </p>
           <div class="side-stat">
-            <strong>What It Sets Up</strong>
-            <span>Pinned Xray release, rendered REALITY config, connection output, and a running systemd service.</span>
+            <strong>它会配置什么</strong>
+            <span>固定版本的 Xray、渲染后的 REALITY 配置、连接输出，以及正在运行的 systemd 服务。</span>
           </div>
           <div class="side-stat">
-            <strong>Update Path</strong>
+            <strong>更新路径</strong>
             <span><code>curl -fsSL https://0x99.link/update.sh | sh</code></span>
           </div>
           <div class="side-stat">
-            <strong>Archive</strong>
-            <span><a href="tunnel-1click-main.tar.gz">Download the published snapshot archive</a></span>
+            <strong>归档</strong>
+            <span><a href="tunnel-1click-main.tar.gz">下载已发布的快照归档</a></span>
           </div>
         </aside>
       </div>
@@ -573,75 +572,74 @@
 
     <section class="section-card affiliate-section" id="vps" aria-labelledby="vps-heading">
       <div class="section-head">
-        <h2 id="vps-heading">Start With a VPS You Control</h2>
+        <h2 id="vps-heading">从你控制的 VPS 开始</h2>
         <p class="section-copy">
-          A private tunnel is easier to trust when self-hosted security starts with infrastructure you can patch,
-          rebuild, and replace. Choose a provider, run the installer, and keep the keys, config, and runtime under
-          your own control.
+          自建安全的第一步，是选择一台你能打补丁、能重装、也能随时替换的服务器。
+          选好 VPS，运行安装命令，把密钥、配置和运行时都留在自己能掌控的地方。
         </p>
       </div>
       <div class="affiliate-grid">
         <article class="affiliate-card">
-          <span class="affiliate-label">Long-running infrastructure</span>
+          <span class="affiliate-label">长期运行的基础设施</span>
           <h3>BandwagonHost</h3>
           <p>
-            A steady VPS option for operators who want predictable hosting before deploying an Xray REALITY service.
+            适合希望先拿到稳定 VPS，再部署 Xray REALITY 服务的自建用户。
           </p>
-          <a class="button-link" href="https://bandwagonhost.com/aff.php?aff=79980" target="_blank" rel="sponsored noopener">View BandwagonHost</a>
+          <a class="button-link" href="https://bandwagonhost.com/aff.php?aff=79980" target="_blank" rel="sponsored noopener">查看 BandwagonHost</a>
         </article>
         <article class="affiliate-card">
-          <span class="affiliate-label">Practical self-hosted starts</span>
+          <span class="affiliate-label">实用的自建起点</span>
           <h3>RackNerd</h3>
           <p>
-            A budget-friendly VPS path for testing, rebuilding, and keeping a private tunnel affordable.
+            更偏预算友好的 VPS 选择，适合测试、重建，以及控制自建隧道的长期成本。
           </p>
-          <a class="button-link" href="https://my.racknerd.com/aff.php?aff=16609" target="_blank" rel="sponsored noopener">View RackNerd</a>
+          <a class="button-link" href="https://my.racknerd.com/aff.php?aff=16609" target="_blank" rel="sponsored noopener">查看 RackNerd</a>
         </article>
       </div>
       <p class="affiliate-note">
-        These are sponsored links. The important part is still the same: use a server you can administer, monitor, and replace.
+        以上为赞助链接。真正重要的原则不变：选择一台你能管理、能监控、也能替换的服务器。
       </p>
     </section>
 
     <section class="section-card" id="what-it-sets-up">
       <div class="section-head">
-        <h2>What It Sets Up</h2>
+        <h2>它会配置什么</h2>
         <p class="section-copy">
-          The installer stays opinionated: pin the Xray release from this repository, prepare the
-          REALITY host config, and leave the common runtime commands close at hand.
+          安装器保持明确取舍：使用仓库中固定的 Xray 版本，准备 REALITY 主机配置，
+          并把常用运行命令留在容易找到的位置。
         </p>
       </div>
       <div class="setup-grid">
         <article class="card">
-          <h3>Pinned Release</h3>
-          <p>Downloads the Xray version pinned in this repository and installs the matching data files.</p>
+          <h3>固定版本</h3>
+          <p>下载仓库中指定的 Xray 版本，并安装匹配的数据文件。</p>
         </article>
         <article class="card">
-          <h3>REALITY Output</h3>
-          <p>Builds the multi-file REALITY config, selects the saved target, and prints a ready-to-copy client URI.</p>
+          <h3>REALITY 输出</h3>
+          <p>生成多文件 REALITY 配置，选择保存过的目标，并打印可直接复制的客户端 URI。</p>
         </article>
         <article class="card">
-          <h3>Systemd Runtime</h3>
-          <p>Installs the service unit, starts Xray, and keeps the status and log commands explicit for later use.</p>
+          <h3>Systemd 运行时</h3>
+          <p>安装服务单元、启动 Xray，并明确保留状态和日志命令，方便之后排查。</p>
         </article>
       </div>
     </section>
 
     <section class="section-card" id="quick-use">
       <div class="section-head">
-        <h2>Quick Use</h2>
+        <h2>快速使用</h2>
         <p class="section-copy">
-          Everything here is meant to be copied directly: update the deployment, control the
-          service, and inspect logs without reopening the full README.
+          这里的内容都可以直接复制：更新部署、控制服务、查看日志，
+          不需要每次重新打开完整 README。
         </p>
       </div>
       <div class="quick-grid">
         <article class="quick-panel">
-          <h3>Update</h3>
+          <h3>更新</h3>
           <div class="command-block">
             <div class="command-head">
-              <span class="command-label">Update</span>
-              <button class="copy-button" type="button" data-copy-target="update-command" aria-label="Copy update command">
+              <span class="command-label">更新</span>
+              <button class="copy-button" type="button" data-copy-target="update-command" aria-label="复制更新命令">
                 <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
                 </svg>
@@ -654,11 +652,11 @@
           </div>
         </article>
         <article class="quick-panel">
-          <h3>Service Control</h3>
+          <h3>服务控制</h3>
           <div class="command-block">
             <div class="command-head">
               <span class="command-label">systemd</span>
-              <button class="copy-button" type="button" data-copy-target="service-command" aria-label="Copy service control commands">
+              <button class="copy-button" type="button" data-copy-target="service-command" aria-label="复制服务控制命令">
                 <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
                 </svg>
@@ -673,11 +671,11 @@ systemctl restart xray</pre>
           </div>
         </article>
         <article class="quick-panel">
-          <h3>Status And Journal</h3>
+          <h3>状态与日志</h3>
           <div class="command-block">
             <div class="command-head">
-              <span class="command-label">Inspect</span>
-              <button class="copy-button" type="button" data-copy-target="inspect-command" aria-label="Copy inspect commands">
+              <span class="command-label">查看</span>
+              <button class="copy-button" type="button" data-copy-target="inspect-command" aria-label="复制查看命令">
                 <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
                 </svg>
@@ -691,11 +689,11 @@ journalctl -u xray -n 50 --no-pager</pre>
           </div>
         </article>
         <article class="quick-panel">
-          <h3>Error Log</h3>
+          <h3>错误日志</h3>
           <div class="command-block">
             <div class="command-head">
               <span class="command-label">Tail</span>
-              <button class="copy-button" type="button" data-copy-target="error-log-command" aria-label="Copy error log command">
+              <button class="copy-button" type="button" data-copy-target="error-log-command" aria-label="复制错误日志命令">
                 <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
                 </svg>
@@ -712,31 +710,31 @@ journalctl -u xray -n 50 --no-pager</pre>
 
     <section class="section-card" id="docs">
       <div class="section-head">
-        <h2>Docs</h2>
+        <h2>文档</h2>
         <p class="section-copy">
-          Use the full README for install behavior, target probing, runtime layout, and failure
-          analysis. Use the direct distribution files when you already know what you need.
+          完整 README 覆盖安装行为、目标探测、运行时布局和失败分析。
+          如果你已经知道需要什么，也可以直接打开发布文件。
         </p>
       </div>
       <div class="resource-grid">
         <article class="resource-card">
           <h3>README</h3>
-          <p>The technical reference for install behavior, update flow, generated files, and troubleshooting.</p>
+          <p>安装行为、更新流程、生成文件和故障排查的技术参考。</p>
           <div class="resource-links">
-            <a class="button-link" href="README.md">Open README</a>
+            <a class="button-link" href="README.md">打开 README</a>
           </div>
         </article>
         <article class="resource-card">
-          <h3>Entrypoints</h3>
-          <p>Direct links to the public install and update scripts published from this Pages site.</p>
+          <h3>入口脚本</h3>
+          <p>从这个 Pages 站点发布的公开安装和更新脚本直达链接。</p>
           <div class="resource-links">
             <a class="button-link" href="install.sh">install.sh</a>
             <a class="button-link" href="update.sh">update.sh</a>
           </div>
         </article>
         <article class="resource-card">
-          <h3>Snapshot Archive</h3>
-          <p>Fetch the published repository snapshot without exposing a GitHub repository URL in the install path.</p>
+          <h3>快照归档</h3>
+          <p>无需在安装路径中暴露 GitHub 仓库 URL，也能获取发布出的仓库快照。</p>
           <div class="resource-links">
             <a class="button-link" href="tunnel-1click-main.tar.gz">tunnel-1click-main.tar.gz</a>
           </div>
@@ -745,7 +743,7 @@ journalctl -u xray -n 50 --no-pager</pre>
     </section>
 
     <footer>
-      0x99.link publishes the landing page and distribution files. Xray release assets still come from the official upstream project.
+      0x99.link 发布落地页和分发文件。Xray 发行资产仍来自官方上游项目。
     </footer>
   </main>
   <script>
