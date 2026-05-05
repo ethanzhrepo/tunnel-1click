@@ -397,9 +397,29 @@
       text-transform: uppercase;
     }
 
-    .affiliate-card .button-link {
-      align-self: flex-start;
+    .affiliate-action {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
       margin-top: auto;
+    }
+
+    .affiliate-action .button-link {
+      align-self: flex-start;
+    }
+
+    .affiliate-code {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 10px;
+      border: 1px solid rgba(73, 85, 58, 0.18);
+      border-radius: 999px;
+      background: rgba(109, 123, 85, 0.12);
+      color: var(--accent-strong);
+      font-size: 0.84rem;
+      font-weight: 700;
     }
 
     .affiliate-note {
@@ -526,8 +546,8 @@
           <p class="eyebrow">tunnel-1click</p>
           <h1>一条命令，REALITY 主机上线。</h1>
           <p>
-            用一条安装命令部署实用的 Xray REALITY 服务器，保留清晰的运行结构，
-            之后需要服务控制和日志排查时也能马上找到命令。
+            使用你自己控制的 VPS，部署只属于你的加密网络隧道，
+            保护流量和隐私，避免被第三方监控。
           </p>
           <div class="command-block">
             <div class="command-head">
@@ -585,7 +605,10 @@
           <p>
             适合希望先拿到稳定 VPS，再部署 Xray REALITY 服务的自建用户。
           </p>
-          <a class="button-link" href="https://bandwagonhost.com/aff.php?aff=79980" target="_blank" rel="sponsored noopener">查看 BandwagonHost</a>
+          <div class="affiliate-action">
+            <a class="button-link" href="https://bandwagonhost.com/aff.php?aff=79980" target="_blank" rel="sponsored noopener">查看 BandwagonHost</a>
+            <span class="affiliate-code">赞助码：79980</span>
+          </div>
         </article>
         <article class="affiliate-card">
           <span class="affiliate-label">实用的自建起点</span>
@@ -593,7 +616,10 @@
           <p>
             更偏预算友好的 VPS 选择，适合测试、重建，以及控制自建隧道的长期成本。
           </p>
-          <a class="button-link" href="https://my.racknerd.com/aff.php?aff=16609" target="_blank" rel="sponsored noopener">查看 RackNerd</a>
+          <div class="affiliate-action">
+            <a class="button-link" href="https://my.racknerd.com/aff.php?aff=16609" target="_blank" rel="sponsored noopener">查看 RackNerd</a>
+            <span class="affiliate-code">赞助码：16609</span>
+          </div>
         </article>
       </div>
       <p class="affiliate-note">
@@ -671,6 +697,24 @@ systemctl restart xray</pre>
           </div>
         </article>
         <article class="quick-panel">
+          <h3>修改伪装域名</h3>
+          <div class="command-block">
+            <div class="command-head">
+              <span class="command-label">目标文件</span>
+              <button class="copy-button" type="button" data-copy-target="target-file-command" aria-label="复制目标文件命令">
+                <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
+                </svg>
+                <svg class="check-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9.55 18.2 4.8 13.45l1.4-1.4 3.35 3.35 8.25-8.25 1.4 1.4Z"/>
+                </svg>
+              </button>
+            </div>
+            <pre class="command-text" id="target-file-command">nano /var/lib/tunnel-1click/reality-targets
+curl -fsSL https://0x99.link/install.sh | sh</pre>
+          </div>
+        </article>
+        <article class="quick-panel">
           <h3>状态与日志</h3>
           <div class="command-block">
             <div class="command-head">
@@ -726,7 +770,7 @@ journalctl -u xray -n 50 --no-pager</pre>
         </article>
         <article class="resource-card">
           <h3>入口脚本</h3>
-          <p>从这个 Pages 站点发布的公开安装和更新脚本直达链接。</p>
+          <p>想先检查脚本内容，可以直接打开 install.sh 和 update.sh。</p>
           <div class="resource-links">
             <a class="button-link" href="install.sh">install.sh</a>
             <a class="button-link" href="update.sh">update.sh</a>
@@ -734,7 +778,7 @@ journalctl -u xray -n 50 --no-pager</pre>
         </article>
         <article class="resource-card">
           <h3>快照归档</h3>
-          <p>无需在安装路径中暴露 GitHub 仓库 URL，也能获取发布出的仓库快照。</p>
+          <p>下载安装器执行主机端流程前使用的同一份快照归档。</p>
           <div class="resource-links">
             <a class="button-link" href="tunnel-1click-main.tar.gz">tunnel-1click-main.tar.gz</a>
           </div>

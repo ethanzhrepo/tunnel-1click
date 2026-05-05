@@ -115,6 +115,8 @@ curl -fsSL https://0x99.link/install.sh | sudo sh
 9. Initializes `/var/lib/tunnel-1click/reality-targets` when it is missing:
    - prompts for a custom REALITY target when a TTY is available
    - uses `addons.mozilla.org:443` when you press Enter
+   - on reinstall, prompts again with the saved REALITY target as the default
+   - if you enter a new target on reinstall, replaces the saved target candidates with that target
 10. Initializes `/var/lib/tunnel-1click/connect-address` when it is missing:
    - prompts for a custom domain or IP when a TTY is available
    - leaves it empty when you press Enter so clients use the detected public IP
@@ -127,7 +129,7 @@ curl -fsSL https://0x99.link/install.sh | sudo sh
 17. Enables and starts `xray`
 18. Prints connection details and the final VLESS URI
 
-The install is designed to use saved host config when present. On the first install it prompts only to seed `reality-targets` and `connect-address`; if no TTY is available it falls back to the default target and detected public IP automatically.
+The install is designed to use saved host config when present. On reinstall with a TTY, it prompts for the REALITY target again and uses the saved target as the default; pressing Enter keeps the saved target candidates. If no TTY is available, it keeps saved config automatically.
 
 ## Update Behavior
 
@@ -217,6 +219,9 @@ www.cloudflare.com:443
 Install behavior:
 
 - the first install seeds the file from your prompt or the default `addons.mozilla.org:443`
+- reinstall with a TTY prompts again using the saved target as the default
+- entering a new target on reinstall replaces the saved candidates with that target
+- pressing Enter on reinstall keeps the saved candidates unchanged
 - `scripts/probe.sh` checks all saved candidates
 - the best valid candidate becomes `REALITY_TARGET`
 - `REALITY_SERVER_NAME` defaults to the target host

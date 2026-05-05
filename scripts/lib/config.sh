@@ -65,6 +65,41 @@ t1c_config_prompt_input() {
   printf '%s\n' "$input"
 }
 
+t1c_saved_reality_target() {
+  local state_file saved
+
+  state_file="$(t1c_state_file)"
+  [[ -f "$state_file" ]] || return 1
+
+  saved="$(
+    t1c_load_state_file "$state_file" >/dev/null 2>&1
+    printf '%s\n' "${REALITY_TARGET:-}"
+  )"
+  saved="$(t1c_trim_line "$saved")"
+  [[ -n "$saved" ]] || return 1
+
+  t1c_normalize_target_candidate "$saved"
+}
+
+t1c_existing_reality_target_default() {
+  local targets_file="$1"
+  local saved first_candidate
+
+  saved="$(t1c_saved_reality_target 2>/dev/null || true)"
+  if [[ -n "$saved" ]]; then
+    printf '%s\n' "$saved"
+    return 0
+  fi
+
+  first_candidate="$(t1c_read_target_candidates "$targets_file" 2>/dev/null | head -n1 || true)"
+  if [[ -n "$first_candidate" ]]; then
+    t1c_normalize_target_candidate "$first_candidate"
+    return 0
+  fi
+
+  t1c_default_reality_target
+}
+
 t1c_resolve_targets_file() {
   local snapshot_dir="$1"
   local runtime_file
@@ -91,19 +126,20 @@ t1c_resolve_connect_address_file() {
 
 t1c_install_initialize_config() {
   local server_ip="$1"
-  local targets_file connect_file target_input target_value connect_input
+  local targets_file connect_file target_default target_input target_value connect_input
 
   mkdir -p "$(t1c_state_dir)"
 
   targets_file="$(t1c_reality_targets_file)"
-  if ! [[ -s "$targets_file" ]] || [[ -z "$(t1c_read_target_candidates "$targets_file" 2>/dev/null || true)" ]]; then
-    target_input="$(t1c_config_prompt_input "REALITY target [$(t1c_default_reality_target)]: " T1C_INSTALL_TARGET_INPUT)"
-    if [[ -z "$target_input" ]]; then
-      target_value="$(t1c_default_reality_target)"
-    else
-      target_value="$(t1c_normalize_target_candidate "$target_input")" || t1c_die 'invalid REALITY target'
-    fi
+  target_default="$(t1c_existing_reality_target_default "$targets_file")"
+  target_input="$(t1c_config_prompt_input "REALITY target [${target_default}]: " T1C_INSTALL_TARGET_INPUT)"
+  target_input="$(t1c_trim_line "$target_input")"
+
+  if [[ -n "$target_input" ]]; then
+    target_value="$(t1c_normalize_target_candidate "$target_input")" || t1c_die 'invalid REALITY target'
     printf '%s\n' "$target_value" >"$targets_file"
+  elif ! [[ -s "$targets_file" ]] || [[ -z "$(t1c_read_target_candidates "$targets_file" 2>/dev/null || true)" ]]; then
+    printf '%s\n' "$target_default" >"$targets_file"
   fi
 
   connect_file="$(t1c_connect_address_file)"

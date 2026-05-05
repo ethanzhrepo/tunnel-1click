@@ -31,6 +31,8 @@ main() {
   assert_match "$english" 'self-hosted security starts with infrastructure you can patch'
   assert_match "$english" 'https://bandwagonhost\.com/aff\.php\?aff=79980'
   assert_match "$english" 'https://my\.racknerd\.com/aff\.php\?aff=16609'
+  assert_match "$english" 'Affiliate code: 79980'
+  assert_match "$english" 'Affiliate code: 16609'
   assert_match "$english" 'rel="sponsored noopener"'
 
   assert_match "$chinese" '<html lang="zh-Hans">'
@@ -45,6 +47,8 @@ main() {
   assert_match "$chinese" '自建安全的第一步'
   assert_match "$chinese" 'https://bandwagonhost\.com/aff\.php\?aff=79980'
   assert_match "$chinese" 'https://my\.racknerd\.com/aff\.php\?aff=16609'
+  assert_match "$chinese" '赞助码：79980'
+  assert_match "$chinese" '赞助码：16609'
   assert_match "$chinese" 'rel="sponsored noopener"'
 
   for page_content in "$english" "$chinese"; do
@@ -55,6 +59,7 @@ main() {
     assert_match "$page_content" 'href="update\.sh"'
     assert_match "$page_content" 'systemctl start xray'
     assert_match "$page_content" 'systemctl restart xray'
+    assert_match "$page_content" '/var/lib/tunnel-1click/reality-targets'
     assert_match "$page_content" 'journalctl -u xray -n 50 --no-pager'
     assert_match "$page_content" 'tail -n 50 /var/log/xray/error\.log'
     assert_match "$page_content" 'data-copy-target='
@@ -62,6 +67,10 @@ main() {
     assert_match "$page_content" 'Press Ctrl/Cmd\+C'
     assert_not_match "$page_content" 'class="copy-button-text"'
     assert_not_match "$page_content" '>Copy<'
+    assert_not_match "$page_content" 'GitHub repository URL'
+    assert_not_match "$page_content" '无需在安装路径中暴露 GitHub 仓库 URL'
+    assert_not_match "$page_content" 'Pages site'
+    assert_not_match "$page_content" '从这个 Pages 站点发布'
   done
 
   assert_match "$english" '>What It Sets Up<'
@@ -73,8 +82,8 @@ main() {
 
   english_copy_count="$(grep -o 'class="copy-button"' <<< "$english" | wc -l | tr -d ' ')"
   chinese_copy_count="$(grep -o 'class="copy-button"' <<< "$chinese" | wc -l | tr -d ' ')"
-  assert_eq "$english_copy_count" "5"
-  assert_eq "$chinese_copy_count" "5"
+  assert_eq "$english_copy_count" "6"
+  assert_eq "$chinese_copy_count" "6"
 }
 
 main "$@"

@@ -86,13 +86,15 @@ run_install_case() {
 }
 
 main() {
-  local default_case custom_case
+  local default_case custom_case reinstall_case reinstall_keep_case
 
   TMPDIR_FOR_TEST="$(make_temp_dir)"
   trap cleanup_tmpdir EXIT
 
   default_case="$TMPDIR_FOR_TEST/default"
   custom_case="$TMPDIR_FOR_TEST/custom"
+  reinstall_case="$TMPDIR_FOR_TEST/reinstall"
+  reinstall_keep_case="$TMPDIR_FOR_TEST/reinstall-keep"
 
   setup_install_fixture "$default_case"
   run_install_case "$default_case" "" "" 'addons.mozilla.org:443|ok|83'
@@ -106,6 +108,40 @@ main() {
   assert_eq "$(cat "$custom_case/state/connect-address")" "edge.example.com"
   assert_eq "$(awk -F= '/^REALITY_TARGET=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$custom_case/state/install.env")" "www.apple.com:443"
   assert_eq "$(awk -F= '/^CONNECT_ADDRESS=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$custom_case/state/install.env")" "edge.example.com"
+
+  setup_install_fixture "$reinstall_case"
+  mkdir -p "$reinstall_case/state"
+  cat >"$reinstall_case/state/reality-targets" <<'EOF'
+addons.mozilla.org:443
+www.apple.com:443
+EOF
+  cat >"$reinstall_case/state/install.env" <<'EOF'
+XRAY_VERSION='v26.3.27'
+XRAY_PORT='443'
+SERVER_IP='203.0.113.25'
+UUID='bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+REALITY_PRIVATE_KEY='old-private'
+REALITY_PUBLIC_KEY='old-public'
+REALITY_SHORT_ID='0011223344556677'
+REALITY_TARGET='www.apple.com:443'
+REALITY_SERVER_NAME='www.apple.com'
+TLS_FINGERPRINT='chrome'
+CONNECT_ADDRESS='203.0.113.25'
+CONNECT_ADDRESS_SOURCE='ip'
+EOF
+  run_install_case "$reinstall_case" "www.cloudflare.com:443" "" 'www.cloudflare.com:443|ok|44'
+  assert_eq "$(cat "$reinstall_case/state/reality-targets")" "www.cloudflare.com:443"
+  assert_eq "$(awk -F= '/^REALITY_TARGET=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$reinstall_case/state/install.env")" "www.cloudflare.com:443"
+
+  setup_install_fixture "$reinstall_keep_case"
+  mkdir -p "$reinstall_keep_case/state"
+  cat >"$reinstall_keep_case/state/reality-targets" <<'EOF'
+addons.mozilla.org:443
+www.apple.com:443
+EOF
+  run_install_case "$reinstall_keep_case" "" "" $'addons.mozilla.org:443|ok|83\nwww.apple.com:443|ok|95'
+  assert_eq "$(cat "$reinstall_keep_case/state/reality-targets")" $'addons.mozilla.org:443\nwww.apple.com:443'
+  assert_eq "$(awk -F= '/^REALITY_TARGET=/{gsub(/^'\''|'\''$/, "", $2); print $2}' "$reinstall_keep_case/state/install.env")" "addons.mozilla.org:443"
 }
 
 main "$@"
